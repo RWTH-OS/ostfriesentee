@@ -1,5 +1,6 @@
 # gedit
 *~
 
-# ant
-build/
+# maven
+pom.xml
+target/
