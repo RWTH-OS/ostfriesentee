@@ -4,3 +4,8 @@
 # maven
 pom.xml
 target/
+
+# eclipse
+.classpath
+.project
+.settings
