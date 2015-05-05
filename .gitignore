@@ -4,6 +4,10 @@
 # maven
 target/
 
+# gradle
+.gradle/
+build/
+
 # eclipse
 .classpath
 .project

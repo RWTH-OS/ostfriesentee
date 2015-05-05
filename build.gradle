@@ -1,0 +1,9 @@
+apply plugin: 'java'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	compile group: 'org.apache.bcel', name: 'bcel', version: '5.2'
+}
