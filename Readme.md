@@ -7,11 +7,19 @@ This java program loads java `.class` files, converts JVM instructions
 to `darjeeling`/`ostfriesentee` compatible instructions and links
 them statically.
 
-## How to Build
+## Build
 
 ~~~{.sh}
-mvn compile
+gradle build
 ~~~
+
+## Execute
+
+~~~{.sh}
+java -jar build/libs/ostfriesentee-infuser.jar ../ostfriesentee/app/testsuite/build/testsuite.jar -o test.di -h test.dhi -d test.h -name=hello
+~~~
+
+However, this currently leads to unexpected results.
 
 ## License
 
