@@ -1,9 +1,6 @@
 # gedit
 *~
 
-# maven
-target/
-
 # gradle
 .gradle/
 build/
