@@ -1,0 +1,3 @@
+Manifest-Version: 1.0
+Main-Class: org.csiro.darjeeling.infuser.InfuserCommandLine
+Class-Path: /usr/share/java/bcel.jar

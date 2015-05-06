@@ -1,8 +1,8 @@
 # gedit
 *~
 
-# gradle
-.gradle/
+# scons
+.sconsign.dblite
 build/
 
 # eclipse
