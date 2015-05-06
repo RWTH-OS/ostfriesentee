@@ -7,3 +7,9 @@ repositories {
 dependencies {
 	compile group: 'org.apache.bcel', name: 'bcel', version: '5.2'
 }
+
+jar {
+	manifest {
+		attributes 'Main-Class': 'org.csiro.darjeeling.infuser.InfuserCommandLine'
+	}
+}
