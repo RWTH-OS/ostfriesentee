@@ -21,6 +21,7 @@
 Import('env')
 
 env.AppendUnique(JAVACLASSPATH="/usr/share/java/bcel.jar")
+env.AppendUnique(JAVACLASSPATH="/usr/share/java/beust-jcommander.jar")
 
 classes = env.Java('build/classes', 'src')
 infuser = env.Jar('build/infuser.jar', classes + ['MANIFEST.MF'])

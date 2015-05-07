@@ -1,24 +1,24 @@
 /*
  * Infuser.java
- * 
+ *
  * Copyright (c) 2008-2010 CSIRO, Delft University of Technology.
- * 
+ *
  * This file is part of Darjeeling.
- * 
+ *
  * Darjeeling is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * Darjeeling is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with Darjeeling.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
+
 package org.csiro.darjeeling.infuser;
 
 import java.io.FileOutputStream;
@@ -69,29 +69,29 @@ import org.w3c.dom.Document;
  */
 public class Infuser
 {
-	
+
 	// never start with version 1.0.0 :-)
-	public static final String version = "1.1.12";
-	
+	public static final String version = "1.2.0";
+
 	// friendly greeting
-    public static final String greeting = String.format("This is Darjeeling Infuser v%s", version);
-    
+	public static final String greeting = String.format("This is Ostfriesentee Infuser v%s", version);
+
 	// Infuser argument instance
-    private InfuserArguments infuserArguments;
-    
-	/** 
-	 * Constructs a new Infuser that outputs verbose messages to System.out 
+	private InfuserArguments infuserArguments;
+
+	/**
+	 * Constructs a new Infuser that outputs verbose messages to System.out
 	 * @param infuserArguments InfuserArguments instance
 	 */
 	public Infuser(InfuserArguments infuserArguments)
 	{
 		this.infuserArguments = infuserArguments;
 	}
-	
+
 	/**
 	 * Creates an infusion file (.di)
 	 * @param infusion the Infusion to output
-	 * @throws InfuserException 
+	 * @throws InfuserException
 	 */
 	private void createInfusionFile(InternalInfusion infusion) throws InfuserException
 	{
@@ -109,11 +109,11 @@ public class Infuser
 			}
 		}
 	}
-	
+
 	/**
 	 * Creates an infusion header file (.dih)
 	 * @param infusion the Infusion to output
-	 * @throws InfuserException 
+	 * @throws InfuserException
 	 */
 	private void createInfusionHeaderFile(InternalInfusion infusion) throws InfuserException
 	{
@@ -135,7 +135,7 @@ public class Infuser
 				Source input = new DOMSource(doc);
 				Result output = new StreamResult(outStream);
 				transformer.transform(input, output);
-				
+
 				outStream.close();
 
 			} catch (IOException ex)
@@ -150,14 +150,14 @@ public class Infuser
 			} catch (TransformerException e)
 			{
 				throw new InfuserException("Error writing infusion file", e);
-			} 
+			}
 		}
 	}
-	
+
 	/**
 	 * Creates an infusion definitions file (.h)
 	 * @param infusion the Infusion to output
-	 * @throws InfuserException 
+	 * @throws InfuserException
 	 */
 	private void createDefinitionFile(InternalInfusion infusion) throws InfuserException
 	{
@@ -177,11 +177,11 @@ public class Infuser
 			}
 		}
 	}
-	
+
 	/**
 	 * Creates an infusion native definitions file (.h)
 	 * @param infusion the Infusion to output
-	 * @throws InfuserException 
+	 * @throws InfuserException
 	 */
 	private void createNativeFile(InternalInfusion infusion) throws InfuserException
 	{
@@ -203,12 +203,12 @@ public class Infuser
 			}
 		}
 	}
-	
-	
+
+
 	/**
 	 * Creates an debug file (.debug)
 	 * @param infusion the Infusion to output
-	 * @throws InfuserException 
+	 * @throws InfuserException
 	 */
 	private void createDebugFile(InternalInfusion infusion) throws InfuserException
 	{
@@ -230,40 +230,40 @@ public class Infuser
 			}
 		}
 	}
-	
+
 	/**
-	 * Prepares the Infusion for processing. 
+	 * Prepares the Infusion for processing.
 	 * @param infusion
 	 * @return
 	 */
 	private void prepare(InternalInfusion infusion) throws InfuserException
 	{
 		Logging.instance.reset();
-		
+
 		// Check that the source version of the input class is 1.6
 		infusion.accept(new JavaClassCheckVisitor());
-		
+
 		// Check if all the instructions in the input files are implemented by the VM.
 		infusion.accept(new InstructionsImplementedCheckVisitor());
-		
+
 		// Check if the number of methods and classes does not exceed the maximum.
 		infusion.accept(new ListSizeLimitationsCheckVisitor());
-		
+
 		// Resolved super class links between AbstractClassDefinition elements.
 		infusion.accept(new ClassResolveVisitor(infusion));
-		
+
 		if (Logging.instance.getErrors()>0)
 		{
 			// report errors and warnings
 			Logging.instance.printResult();
-			
+
 			// throw exception to notify the caller that something went bonkers
 			throw new InfuserException("Errors during preparation");
 		}
 	}
-	
+
 	/**
-	 * Processes the infusion.  
+	 * Processes the infusion.
 	 * @param infusion
 	 * @return
 	 */
@@ -279,14 +279,14 @@ public class Infuser
 		infusion.accept(new InterfaceListFlattenVisitor());
 		infusion.accept(new ClassInitialiserResolutionVisitor(infusion));
 		infusion.accept(new StringTableVisitor(infusion));
-		
+
 		// process bytecode
 		infusion.accept(new CodeBlockVisitor(infusion));
 
 		// some profiling output for the SenSys paper
 		// infusion.accept(new StackSizeVisitor());
 	}
-	
+
 	/**
 	 * Process the input and produce output :-)
 	 * @throws InfuserException
@@ -303,27 +303,27 @@ public class Infuser
 			Logging.instance.println("Infusion is up to date");
 			return;
 		}
-		
+
 		// Logging.instance.addVerbose(VerboseOutputType.ARGUMENTS_PARSING);
-		
+
 		// create an infusion
 		InternalInfusion infusion = infuserArguments.createInfusion();
 
 		// prepare the infusion for processing
 		prepare(infusion);
-		
+
 		// process the infusion
 		process(infusion);
-			
+
 		// create an infusion file (optional)
 		createInfusionFile(infusion);
-		
+
 		// create infusion header file (optional)
 		createInfusionHeaderFile(infusion);
 
 		// create definition file
 		createDefinitionFile(infusion);
-		
+
 		// create native file
 		createNativeFile(infusion);
 
