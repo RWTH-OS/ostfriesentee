@@ -44,21 +44,17 @@ public class InfuserCommandLine
 		try {
 			// parse arguments
 			commander.parse(args);
+			infuserArgs.checkInputFileExistance();
 
 			// do infusion
 			Infuser infuser = new Infuser(infuserArgs);
 			infuser.process();
-		} catch (com.beust.jcommander.ParameterException ex)
+		} catch (com.beust.jcommander.ParameterException | FileNotFoundException ex)
 		{
 			System.out.println("error: " + ex.getMessage());
 			commander.usage();
 			System.exit(-1);
 		}
-		//		catch (FileNotFoundException ex)
-		//		{
-		//			System.out.println(ex.getMessage());
-		//			System.exit(-1);
-		//		}
 		catch (InfuserException ex)
 		{
 			System.out.println(ex.getMessage());

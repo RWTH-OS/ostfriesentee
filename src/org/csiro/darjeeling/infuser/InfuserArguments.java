@@ -28,8 +28,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.regex.Matcher;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -44,7 +42,6 @@ import org.csiro.darjeeling.infuser.structure.elements.internal.InternalInfusion
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 
 
@@ -89,6 +86,17 @@ public class InfuserArguments
 	 *  the infuser rather than through command line arguments.
 	 */
 	public InfuserArguments(){}
+
+	/**
+	 * Evaluates if all input files exist, throws a FileNotFoundException if this is not the case.
+	 */
+	public void checkInputFileExistance() throws FileNotFoundException {
+		for(String fileName : inputFiles) {
+			if(!fileExists(fileName)) {
+				throw new FileNotFoundException("Input file " + fileName + " does not exist");
+			}
+		}
+	}
 
 	// Convenience method
 	private static boolean fileExists(String name)
