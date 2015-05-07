@@ -1,4 +1,4 @@
-# SConstruct
+# SConscript
 #
 # Copyright (c) 2015 Kevin Laeufer <kevin.laeufer@rwth-aachen.de>
 #
@@ -18,9 +18,11 @@
 # along with Ostfriesentee.  If not, see <http://www.gnu.org/licenses/>.
 
 
-env = Environment()
-env.Append(JAVACFLAGS = ['-encoding', 'utf8', '-Xlint:deprecation', '-Xlint:unchecked'])
+Import('env')
 
-infuser = SConscript(['SConscript'], exports = 'env')
+env.AppendUnique(JAVACLASSPATH="/usr/share/java/bcel.jar")
 
-env.Default(infuser)
+classes = env.Java('build/classes', 'src')
+infuser = env.Jar('build/infuser.jar', classes + ['MANIFEST.MF'])
+
+Return('infuser')
