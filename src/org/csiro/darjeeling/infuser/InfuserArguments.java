@@ -77,11 +77,6 @@ public class InfuserArguments
 	@Parameter(names = { "-c", "--c-code-output" }, description = "The c code output file.")
 	private String cCodeOutputFile;
 
-
-	// Infusion version
-	private int majorVersion = 1;
-	private int minorVersion = 0;
-
 	// Internally used debug output file.
 	private String debugOutputFile;
 
@@ -109,7 +104,7 @@ public class InfuserArguments
 	 * @return a new InternalInfusion instance with classes and headers loaded
 	 * @throws InfuserException
 	 */
-	public InternalInfusion createInfusion() throws InfuserException
+	public InternalInfusion createInfusion(int majorVersion, int minorVersion) throws InfuserException
 	{
 		// create an infusion and create the header
 		InternalHeader header = new InternalHeader(infusionName, majorVersion, minorVersion);
@@ -215,22 +210,6 @@ public class InfuserArguments
 		return infusionName;
 	}
 
-	/**
-	 * @return the majorVersion
-	 */
-	public int getMajorVersion()
-	{
-		return majorVersion;
-	}
-
-	/**
-	 * @return the minorVersion
-	 */
-	public int getMinorVersion()
-	{
-		return minorVersion;
-	}
-
 	public String getInfusionOutputFile()
 	{
 		return infusionOutputFile;
@@ -259,16 +238,6 @@ public class InfuserArguments
 	public void setDefinitionOutputFile(String definitionOutputFile)
 	{
 		this.cHeaderOutputFile = definitionOutputFile;
-	}
-
-	public void setMajorVersion(int majorVersion)
-	{
-		this.majorVersion = majorVersion;
-	}
-
-	public void setMinorVersion(int minorVersion)
-	{
-		this.minorVersion = minorVersion;
 	}
 
 	public void setInfusionName(String infusionName)

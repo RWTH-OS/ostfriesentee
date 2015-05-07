@@ -69,9 +69,12 @@ import org.w3c.dom.Document;
  */
 public class Infuser
 {
+	public static final int majorVersion = 1;
+	public static final int minorVersion = 2;
+	public static final int revision     = 0;
 
 	// never start with version 1.0.0 :-)
-	public static final String version = "1.2.0";
+	public static final String version = String.format("%s.%s.%s", majorVersion, minorVersion, revision);
 
 	// friendly greeting
 	public static final String greeting = String.format("This is Ostfriesentee Infuser v%s", version);
@@ -307,7 +310,7 @@ public class Infuser
 		// Logging.instance.addVerbose(VerboseOutputType.ARGUMENTS_PARSING);
 
 		// create an infusion
-		InternalInfusion infusion = infuserArguments.createInfusion();
+		InternalInfusion infusion = infuserArguments.createInfusion(majorVersion, minorVersion);
 
 		// prepare the infusion for processing
 		prepare(infusion);
