@@ -300,13 +300,6 @@ public class Infuser
 		if (infuserArguments.getInfusionName()==null)
 			throw new InfuserException("error: infusion name not provided");
 
-		// check for dependencies
-		if (infuserArguments.isUpToDate())
-		{
-			Logging.instance.println("Infusion is up to date");
-			return;
-		}
-
 		// Logging.instance.addVerbose(VerboseOutputType.ARGUMENTS_PARSING);
 
 		// create an infusion

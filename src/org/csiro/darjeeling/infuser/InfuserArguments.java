@@ -77,10 +77,6 @@ public class InfuserArguments
 	// Internally used debug output file.
 	private String debugOutputFile;
 
-	// Used for caching the last modified time so that it is not recalculated
-	// for every getLastModified call
-	private long lastModified = 0;
-
 	/**
 	 *  Creates a new, empty InfuserArguments instance. Can be used to programmatically drive
 	 *  the infuser rather than through command line arguments.
@@ -173,41 +169,6 @@ public class InfuserArguments
 		}
 
 		return infusion;
-	}
-
-	private long getFileLastModified(String fileName)
-	{
-		File file = new File(fileName);
-		return file.lastModified();
-	}
-
-	private long getLastModified()
-	{
-		long fileLastModified;
-
-		if (lastModified==0)
-		{
-			for (String fileName : inputFiles)
-				if ((fileLastModified=getFileLastModified(fileName))>lastModified) lastModified = fileLastModified;
-		}
-
-		return lastModified;
-	}
-
-	public boolean isUpToDate()
-	{
-		String[] files = new String[] {	infusionOutputFile, headerOutputFile, cHeaderOutputFile, cCodeOutputFile };
-		for (String fileName : files)
-		{
-			if (fileName!=null)
-			{
-				File file = new File(fileName);
-				if (file.lastModified()<getLastModified())
-					return false;
-			}
-		}
-
-		return true;
 	}
 
 	/**
