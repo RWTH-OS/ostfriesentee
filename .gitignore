@@ -1,6 +1,9 @@
 # gedit
 *~
 
+# python
+*.pyc
+
 # scons
 .sconsign.dblite
 build/
