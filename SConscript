@@ -20,8 +20,13 @@
 
 Import('env')
 
+# local dependencies
+env = env.Clone()
 env.AppendUnique(JAVACLASSPATH="/usr/share/java/bcel.jar")
 env.AppendUnique(JAVACLASSPATH="/usr/share/java/beust-jcommander.jar")
+
+# TODO: add manifest builder that turns class path dependencies and other
+#       meta data into manifest file!
 
 classes = env.Java('build/classes', 'src')
 infuser = env.Jar('build/infuser.jar', classes + ['MANIFEST.MF'])
