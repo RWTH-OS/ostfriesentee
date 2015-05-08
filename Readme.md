@@ -10,13 +10,13 @@ them statically.
 ## Build
 
 ~~~{.sh}
-gradle build
+scons
 ~~~
 
 ## Execute
 
 ~~~{.sh}
-java -jar build/libs/ostfriesentee-infuser.jar ../ostfriesentee/app/testsuite/build/testsuite.jar -o test.di -h test.dhi -d test.h -name=hello
+java -jar build/libs/ostfriesentee-infuser.jar ../ostfriesentee/app/testsuite/build/testsuite.jar -o test.di -h test.dhi -d test.h -n hello
 ~~~
 
 However, this currently leads to unexpected results.
