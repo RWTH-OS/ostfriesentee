@@ -25,7 +25,7 @@ def infusion_action_generator(target, source, env, for_signature):
 	flags = {'.dhi': '-h', '.di': '-o', '.h': '-d', '.c': '-c'}
 	name = os.path.basename(os.path.dirname(str(target[0])))
 
-	action_str = "java -jar $INFUSER_JAR"
+	action_str = env['INFUSER_COMMAND_STR']
 
 	for tar in target:
 		try:
@@ -78,8 +78,13 @@ def generate(env):
 		env.Error("Could not find the infuser. `{}` does not exist.".format(sconscript))
 		exit(1)
 
-	# 2.) get jar file as scons node
-	env['INFUSER_JAR'] = SConscript([sconscript], exports = 'env')[0]
+	# 2.) build infusor string
+	(jar, cp, main) = SConscript([sconscript], exports = 'env')
+	# 2.1) the jar is broken (see infuser/SConscript), but is still handy
+	#      in order to declare dependencies
+	env['INFUSER_JAR'] = jar
+	# 2.2) build infuser string
+	env['INFUSER_COMMAND_STR'] = 'java -cp "{}" {}'.format(os.pathsep.join(cp), main)
 
 	# 3.) create the infusion builder
 	infusion_builder = SCons.Builder.Builder(
