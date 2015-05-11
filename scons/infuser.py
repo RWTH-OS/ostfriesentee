@@ -22,7 +22,7 @@ from SCons.Script import SConscript, File, Depends
 import SCons.Util
 
 def infusion_action_generator(target, source, env, for_signature):
-	flags = {'.dhi': '-h', '.di': '-o', '.h': '-d', '.c': '-c'}
+	flags = {'.dih': '-h', '.di': '-o', '.h': '-d', '.c': '-c'}
 	name = os.path.basename(os.path.dirname(str(target[0])))
 
 	action_str = env['INFUSER_COMMAND_STR']
@@ -61,7 +61,7 @@ def infusion_emitter(target, source, env):
 			exit(1)
 
 	# create file targets
-	output_templates = ['{}.dhi', '{}.di', 'jlib_{}.c', 'jlib_{}.h']
+	output_templates = ['{}.dih', '{}.di', 'jlib_{}.c', 'jlib_{}.h']
 	target = []
 	for templ in output_templates:
 		path = os.path.join(infusion_path, templ.format(infusion_name))
