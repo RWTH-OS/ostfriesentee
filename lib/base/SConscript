@@ -21,8 +21,11 @@ import os
 
 Import('env')
 
-classes      = env.Java('build/classes', 'java')
-infusion_res = env.Infusion('build/infusion/base', classes)
+# build java code and run infuser
+env_java = env.Clone()
+env_java.AppendUnique(JAVACFLAGS = ['-encoding', 'utf8', '-Xlint:deprecation', '-Xlint:unchecked'])
+classes      = env_java.Java('build/classes', 'java')
+infusion_res = env_java.Infusion('build/infusion/base', classes)
 
 # split up infusion
 infusion_dhi = [str(f) for f in infusion_res if str(f).endswith('.dhi')]

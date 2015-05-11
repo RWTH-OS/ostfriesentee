@@ -20,7 +20,6 @@
 import os
 
 env = Environment(toolpath = [os.path.join('..', '..', 'scons')], tools = ['default', 'ostfriesentee'])
-env.Append(JAVACFLAGS = ['-encoding', 'utf8', '-Xlint:deprecation', '-Xlint:unchecked'])
 
 infusion = SConscript(['SConscript'], exports = 'env')
 
