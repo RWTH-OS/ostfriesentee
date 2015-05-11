@@ -28,10 +28,10 @@ classes      = env_java.Java('build/classes', 'java')
 infusion_res = env_java.Infusion('build/infusion/base', classes)
 
 # split up infusion
-infusion_dhi = [str(f) for f in infusion_res if str(f).endswith('.dhi')]
-infusion_di  = [str(f) for f in infusion_res if str(f).endswith('.di')]
-infusion_c   = [str(f) for f in infusion_res if str(f).endswith('.c')]
-infusion_h   = [str(f) for f in infusion_res if str(f).endswith('.h')]
+infusion_dhi = [os.path.abspath(str(f)) for f in infusion_res if str(f).endswith('.dhi')]
+infusion_di  = [os.path.abspath(str(f)) for f in infusion_res if str(f).endswith('.di')]
+infusion_c   = [os.path.abspath(str(f)) for f in infusion_res if str(f).endswith('.c')]
+infusion_h   = [os.path.abspath(str(f)) for f in infusion_res if str(f).endswith('.h')]
 
 # build c code
 c_env = env.Clone()
@@ -44,7 +44,7 @@ c_env.Append(CPPPATH = [os.path.abspath('../../../architecture/native/c/')])
 
 infusion = c_env.StaticLibrary('build/base', infusion_c + env.Glob('build/base/*.c'))
 
-# add infusion and infusion header to target
-infusion += infusion_dhi + infusion_di
+# add infusion and infusion header as well a c header to target
+infusion += infusion_dhi + infusion_di + infusion_h
 
 Return('infusion')
