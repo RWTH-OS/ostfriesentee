@@ -17,9 +17,31 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Ostfriesentee.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
+
 Import('env')
 
-classes  = env.Java('build/classes', 'java')
-infusion = env.Infusion('build/base', classes)
+classes      = env.Java('build/classes', 'java')
+infusion_res = env.Infusion('build/infusion/base', classes)
+
+# split up infusion
+infusion_dhi = [str(f) for f in infusion_res if str(f).endswith('.dhi')]
+infusion_di  = [str(f) for f in infusion_res if str(f).endswith('.di')]
+infusion_c   = [str(f) for f in infusion_res if str(f).endswith('.c')]
+infusion_h   = [str(f) for f in infusion_res if str(f).endswith('.h')]
+
+# build c code
+c_env = env.Clone()
+c_env.VariantDir(variant_dir='build/base', src_dir='c')
+c_env.Append(CPPPATH = [os.path.abspath('./build/infusion/base')])
+c_env.Append(CPPPATH = [os.path.abspath('../../../vm/c')])
+# TODO: move config somewhere else
+c_env.Append(CPPPATH = [os.path.abspath('../../../config/native/c')])
+c_env.Append(CPPPATH = [os.path.abspath('../../../architecture/native/c/')])
+
+infusion = c_env.StaticLibrary('build/base', infusion_c + env.Glob('build/base/*.c'))
+
+# add infusion and infusion header to target
+infusion += infusion_dhi + infusion_di
 
 Return('infusion')
