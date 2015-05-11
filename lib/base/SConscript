@@ -21,6 +21,13 @@ import os
 
 Import('env')
 
+# TODO: make this less hacky
+# make sure to specify lib only once
+if 'LIB_BASE_INFUSION' in env and 'LIB_BASE_CLASSES_PATH' in env:
+	infusion     = env['LIB_BASE_INFUSION']
+	classes_path = env['LIB_BASE_CLASSES_PATH']
+	Return('infusion', 'classes_path')
+
 # build java code and run infuser
 env_java = env.Clone()
 env_java.AppendUnique(JAVACFLAGS = ['-encoding', 'utf8', '-Xlint:deprecation', '-Xlint:unchecked'])
@@ -49,5 +56,8 @@ infusion = c_env.StaticLibrary('build/base', infusion_c + env.Glob('build/base/*
 
 # add infusion and infusion header as well a c header to target
 infusion += infusion_dih + infusion_di + infusion_h
+
+env['LIB_BASE_INFUSION']     = infusion
+env['LIB_BASE_CLASSES_PATH'] = classes_path
 
 Return('infusion', 'classes_path')
