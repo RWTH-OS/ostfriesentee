@@ -37,6 +37,7 @@ else:
 # TODO: add manifest builder that turns class path dependencies and other
 #       meta data into manifest file!
 
-infuser = env.JavaToJar('build/infuser.jar', ['src', 'MANIFEST.MF'])
+manifest = env.Manifest(target='build/MANIFEST.MF', mainclass="org.csiro.darjeeling.infuser.InfuserCommandLine")
+infuser = env.JavaToJar('build/infuser.jar', ['src', 'build/MANIFEST.MF'])
 
 Return('infuser')

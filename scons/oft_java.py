@@ -53,7 +53,7 @@ of predicting emitted `.class` files.
 
 
 import SCons
-from SCons.Script import Mkdir
+from SCons.Script import Mkdir, Depends
 import os
 
 def flag_if_not_empty(env, flag, env_var, default=None):
@@ -115,11 +115,11 @@ def java_to_jar_emitter(target, source, env):
 
 	for s in source:
 		path = os.path.abspath(str(s))
-		if os.path.isfile(path):
+		if isinstance(s, SCons.Node.FS.File) or os.path.isfile(path):
 			if not path in files_already_found:
 				java_src.append(s)
 				files_already_found.append(path)
-		elif os.path.isdir(path):
+		elif isinstance(s, SCons.Node.FS.Dir) or os.path.isdir(path):
 			java_files = find_java_files(path)
 			for f in java_files:
 				if not f in files_already_found:
@@ -134,6 +134,29 @@ def java_to_jar_string(target, source, env):
 	"""
 	return ""
 
+def manifest_action(target, source, env):
+	manifest = "Manifest-Version: 1.0\n"
+	if 'mainclass' in env:
+		manifest += "Main-Class: {}\n".format(env['mainclass'])
+	if not 'classpath' in env:
+		env['classpath'] = env['JAVACLASSPATH']
+	manifest += "Class-Path: {}\n".format(" ".join(env['classpath']))
+	open(target[0].abspath, 'w').write(manifest)
+	return 0
+
+def manifest_emitter(target, source, env):
+	if 'mainclass' in env:
+		Depends(target, SCons.Node.Python.Value(env['mainclass']))
+	if 'classpath' in env:
+		Depends(target, SCons.Node.Python.Value(env['classpath']))
+	else:
+		Depends(target, SCons.Node.Python.Value(env['JAVACLASSPATH']))
+	source = []
+	return target, source
+
+def manifest_string(target, source, env):
+	return "Manifest"
+
 def run_jar(env, jar, parameters=""):
 	""" helper method to run a jar file as pseudo target """
 	return env.Command('run_jar_file', jar, 'java -jar {} {}'.format(jar[0].abspath, parameters))
@@ -146,6 +169,15 @@ def generate(env):
 		target_factory = SCons.Node.FS.File,
 		source_factory = SCons.Node.FS.Entry)
 	env.Append(BUILDERS = { 'JavaToJar': java_to_jar_builder })
+
+	# Manifest Builder
+	manifest_builder = SCons.Builder.Builder(
+		action = env.Action(manifest_action, manifest_string),
+		emitter = manifest_emitter,
+		suffix = '.MF',
+		target_factory = SCons.Node.FS.File,
+		source_factory = SCons.Node.FS.File)
+	env.Append(BUILDERS = { 'Manifest': manifest_builder })
 
 	# helper functions
 	env.AddMethod(run_jar, 'RunJar')
