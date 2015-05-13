@@ -25,6 +25,7 @@ import os
 from SCons.Script import ARGUMENTS
 
 
+
 def generate(env):
 	# initialize environment globals that other tools rely on
 	env.Append(OT_SCONS_TOOLS=os.path.dirname(os.path.abspath(__file__)))
@@ -39,7 +40,7 @@ def generate(env):
 	env.SetLogLevel(log_level)
 
 	# load other tools
-	env.Tool('java_to_jar')
+	env.Tool('oft_java')
 	env.Tool('infuser')
 	env.Tool('c_array')
 

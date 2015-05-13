@@ -18,10 +18,12 @@
 # along with Ostfriesentee.  If not, see <http://www.gnu.org/licenses/>.
 
 
-env = Environment(toolpath = ['scons'], tools = ['default', 'java_to_jar'])
+env = Environment(toolpath = ['scons'], tools = ['default', 'oft_java'])
 env.Append(JAVACFLAGS = ['-encoding', 'utf8', '-Xlint:deprecation', '-Xlint:unchecked'])
 
 infuser = SConscript(['SConscript'], exports = 'env')
 
+env.Alias('infuser', infuser)
+env.Alias('run', env.RunJar(infuser))
 
-env.Default(infuser)
+env.Default('infuser')

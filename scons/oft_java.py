@@ -1,4 +1,4 @@
-# java_to_jar.py
+# oft_javat.py
 #
 # Copyright (c) 2015 Kevin Laeufer <kevin.laeufer@rwth-aachen.de>
 #
@@ -18,6 +18,9 @@
 # along with Ostfriesentee.  If not, see <http://www.gnu.org/licenses/>.
 
 """
+# Ostfriesentee Java Tool
+
+## JavaToJar
 This adds a `JavaToJar` builder that overcomes some of the default java
 builder's shortcomings.
 
@@ -131,13 +134,21 @@ def java_to_jar_string(target, source, env):
 	"""
 	return ""
 
+def run_jar(env, jar, parameters=""):
+	""" helper method to run a jar file as pseudo target """
+	return env.Command('run_jar_file', jar, 'java -jar {} {}'.format(jar[0].abspath, parameters))
+
 def generate(env):
+	# JavaToJar Builder
 	java_to_jar_builder = SCons.Builder.Builder(
 		action = env.Action(java_to_jar_action, java_to_jar_string),
 		emitter = java_to_jar_emitter,
 		target_factory = SCons.Node.FS.File,
 		source_factory = SCons.Node.FS.Entry)
 	env.Append(BUILDERS = { 'JavaToJar': java_to_jar_builder })
+
+	# helper functions
+	env.AddMethod(run_jar, 'RunJar')
 
 def exists(env):
 	return 1
