@@ -39,6 +39,7 @@ def generate(env):
 	env.SetLogLevel(log_level)
 
 	# load other tools
+	env.Tool('java_to_jar')
 	env.Tool('infuser')
 	env.Tool('c_array')
 

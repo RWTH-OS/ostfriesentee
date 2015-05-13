@@ -18,13 +18,10 @@
 # along with Ostfriesentee.  If not, see <http://www.gnu.org/licenses/>.
 
 
-env = Environment()
+env = Environment(toolpath = ['scons'], tools = ['default', 'java_to_jar'])
 env.Append(JAVACFLAGS = ['-encoding', 'utf8', '-Xlint:deprecation', '-Xlint:unchecked'])
 
-(infuser_jar, infuser_classpath, infuser_main)= SConscript(['SConscript'], exports = 'env')
+infuser = SConscript(['SConscript'], exports = 'env')
 
-print("WARNING: The infuser.jar will be broken, because of scons' shortcomings.")
-print("         http://scons.tigris.org/issues/show_bug.cgi?id=1594")
-print("         http://scons.tigris.org/issues/show_bug.cgi?id=2547")
 
-env.Default(infuser_jar)
+env.Default(infuser)

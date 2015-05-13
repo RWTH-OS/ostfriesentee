@@ -37,19 +37,6 @@ else:
 # TODO: add manifest builder that turns class path dependencies and other
 #       meta data into manifest file!
 
-classes = env.Java('build/classes', 'src')
+infuser = env.JavaToJar('build/infuser.jar', ['src', 'MANIFEST.MF'])
 
-# WARNING: building jars with scons is somewhat broken, beacause scons
-#          is unable to find all *.class files produced by javac and
-#          thus, not all *.class files will be added to the .jar
-# http://scons.tigris.org/issues/show_bug.cgi?id=1594
-# http://scons.tigris.org/issues/show_bug.cgi?id=2547
-infuser = env.Jar('build/infuser.jar', classes + ['MANIFEST.MF'])
-
-# return classpath and main class in order to be able to execute the infuser
-# without having to use the broken jar
-classpath  = list(env['JAVACLASSPATH'])
-classpath.append(os.path.abspath('build/classes'))
-main_class = "org.csiro.darjeeling.infuser.InfuserCommandLine"
-
-Return('infuser', 'classpath', 'main_class')
+Return('infuser')
