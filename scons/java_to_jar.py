@@ -50,10 +50,46 @@ of predicting emitted `.class` files.
 
 
 import SCons
+from SCons.Script import Mkdir
 import os
 
+def flag_if_not_empty(env, flag, env_var, default=None):
+	if env_var in env and len(env[env_var]) > 0:
+		return " {} {}".format(flag, ":".join(env[env_var]))
+	elif default and len(default) > 0:
+		return " {} {}".format(flag, default)
+	else:
+		return ""
+
 def java_to_jar_action(target, source, env):
-	
+	# derive class dir from jar location
+	# TODO: this might not a good idea in all cases
+	class_dir = os.path.join(os.path.dirname(str(target[0])), 'class')
+
+	java_src = [str(s) for s in source if os.path.splitext(str(s))[1] == '.java']
+	manifest = [str(s) for s in source if os.path.basename(str(s)) == 'MANIFEST.MF']
+
+	# build `javac` command
+	javac = "$JAVAC $JAVACFLAGS"
+	javac += flag_if_not_empty(env, "-bootclasspath", "JAVABOOTCLASSPATH")
+	javac += flag_if_not_empty(env, "-classpath", "JAVACLASSPATH")
+	# TODO: add default source path
+	javac += flag_if_not_empty(env, "-sourcepath", "JAVASOURCEPATH")
+	javac += " -d {}".format(class_dir)
+	javac += " {}".format(" ".join(java_src))
+
+	# build `jar` command
+	jar = "$JAR cf"
+	if len(manifest) > 0:
+		jar += "m"
+	jar += " {}".format(str(target[0]))
+	if len(manifest) > 0:
+		jar += " {}".format(str(manifest[0]))
+	jar += " -C {} .".format(class_dir)
+
+	env.Execute(Mkdir(class_dir))
+	env.Execute(javac)
+	env.Execute(jar)
 	return 0
 
 
@@ -77,24 +113,27 @@ def java_to_jar_emitter(target, source, env):
 	for s in source:
 		path = os.path.abspath(str(s))
 		if os.path.isfile(path):
-			print("found file: {}".format(path))
 			if not path in files_already_found:
 				java_src.append(s)
 				files_already_found.append(path)
 		elif os.path.isdir(path):
-			print("found dir: {}".format(path))
 			java_files = find_java_files(path)
 			for f in java_files:
-				print("found jave file: {}".format(f))
 				if not f in files_already_found:
 					java_src.append(f)
 					files_already_found.append(f)
 
 	return target, java_src
 
+def java_to_jar_string(target, source, env):
+	""" returns an empty string, because the command run by the python action
+	    will be displayed
+	"""
+	return ""
+
 def generate(env):
 	java_to_jar_builder = SCons.Builder.Builder(
-		action = env.Action(java_to_jar_action),
+		action = env.Action(java_to_jar_action, java_to_jar_string),
 		emitter = java_to_jar_emitter,
 		target_factory = SCons.Node.FS.File,
 		source_factory = SCons.Node.FS.Entry)
