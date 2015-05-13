@@ -21,6 +21,10 @@
 env = Environment()
 env.Append(JAVACFLAGS = ['-encoding', 'utf8', '-Xlint:deprecation', '-Xlint:unchecked'])
 
-infuser = SConscript(['SConscript'], exports = 'env')
+(infuser_jar, infuser_classpath, infuser_main)= SConscript(['SConscript'], exports = 'env')
 
-env.Default(infuser)
+print("WARNING: The infuser.jar will be broken, because of scons' shortcomings.")
+print("         http://scons.tigris.org/issues/show_bug.cgi?id=1594")
+print("         http://scons.tigris.org/issues/show_bug.cgi?id=2547")
+
+env.Default(infuser_jar)
