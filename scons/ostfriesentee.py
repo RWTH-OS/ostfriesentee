@@ -24,7 +24,9 @@
 import os
 from SCons.Script import ARGUMENTS
 
-
+def run_program(env, program, parameters=""):
+	""" helper method to run an executable as pseudo target """
+	return env.Command('run_program', program, '{} {}'.format(program[0].abspath, parameters))
 
 def generate(env):
 	# initialize environment globals that other tools rely on
@@ -43,6 +45,9 @@ def generate(env):
 	env.Tool('oft_java')
 	env.Tool('infuser')
 	env.Tool('c_array')
+
+	# helper functions
+	env.AddMethod(run_program, 'Run')
 
 def exists(env):
 	return 1
