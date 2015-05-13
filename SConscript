@@ -24,7 +24,15 @@ Import('env')
 # local dependencies
 env = env.Clone()
 env.AppendUnique(JAVACLASSPATH="/usr/share/java/bcel.jar")
-env.AppendUnique(JAVACLASSPATH="/usr/share/java/beust-jcommander.jar")
+# check default Fedora path
+if os.path.isfile("/usr/share/java/beust-jcommander.jar"):
+	env.AppendUnique(JAVACLASSPATH="/usr/share/java/beust-jcommander.jar")
+# check default Ubuntu path
+elif os.path.isfile("/usr/share/java/jcommander.jar"):
+	env.AppendUnique(JAVACLASSPATH="/usr/share/java/jcommander.jar")
+else:
+	env.Error("Could not find jcommander.jar")
+	exit(1)
 
 # TODO: add manifest builder that turns class path dependencies and other
 #       meta data into manifest file!
