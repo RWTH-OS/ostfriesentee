@@ -40,6 +40,7 @@ def generate(env):
 
 	# load other tools
 	env.Tool('infuser')
+	env.Tool('c_array')
 
 def exists(env):
 	return 1
