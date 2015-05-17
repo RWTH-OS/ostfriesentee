@@ -1,4 +1,5 @@
 # ostfriesentee.py
+# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2015 Kevin Laeufer <kevin.laeufer@rwth-aachen.de>
 #

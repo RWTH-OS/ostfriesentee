@@ -1,4 +1,5 @@
 # infuser.py
+# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2015 Kevin Laeufer <kevin.laeufer@rwth-aachen.de>
 #
@@ -17,9 +18,79 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Ostfriesentee.  If not, see <http://www.gnu.org/licenses/>.
 
+"""
+# Infuser Scons Tool
+
+There are two types of infusion:
+The `OstfriesenteeLibrary`, and the `OstfriesenteeApp`.
+Only libraries may contain native code. Apps can only rely
+on libraries in order to access native code. This is because
+it should be possible to load an app at run time, while
+a library needs to be compiled into the executable.
+"""
+
 import os
 from SCons.Script import SConscript, File, Depends
 import SCons.Util
+
+def ostfriesentee_library_action(name, source, env):
+	""" This is a pseudo builder that tells scons how to generate a
+	    `OstfriesenteeLibrary`:
+	    * may consist of Java and C sources
+	    * may depend on other libraries (specify with env['OFT_LIBS'])
+	    * needs to be linked into the executable containing the Ostfriesentee jvm
+	    * other libraries as well as apps may depend on it
+	    * _input_: *.java, *.c
+	    * _output_: *.a, *.di, *.dih
+	"""
+
+
+
+
+"""
+# TODO: make this less hacky
+# make sure to specify lib only once
+if 'LIB_BASE_INFUSION' in env and 'LIB_BASE_CLASSES_PATH' in env:
+	infusion     = env['LIB_BASE_INFUSION']
+	classes_path = env['LIB_BASE_CLASSES_PATH']
+	Return('infusion', 'classes_path')
+
+# build java code and run infuser
+env_java = env.Clone()
+env_java.AppendUnique(JAVACFLAGS = ['-encoding', 'utf8', '-Xlint:deprecation', '-Xlint:unchecked'])
+# do not depend on system jars
+env_java['JAVABOOTCLASSPATH'] = []
+classes_path = os.path.abspath('build/classes')
+classes      = env_java.Java(classes_path, 'java')
+infusion_res = env_java.Infusion('build/infusion/base', classes)
+
+# split up infusion
+infusion_dih = [os.path.abspath(str(f)) for f in infusion_res if str(f).endswith('.dih')]
+infusion_di  = [os.path.abspath(str(f)) for f in infusion_res if str(f).endswith('.di')]
+infusion_c   = [os.path.abspath(str(f)) for f in infusion_res if str(f).endswith('.c')]
+infusion_h   = [os.path.abspath(str(f)) for f in infusion_res if str(f).endswith('.h')]
+
+# build c code
+c_env = env.Clone()
+c_env.VariantDir(variant_dir='build/base', src_dir='c')
+c_env.Append(CPPPATH = [os.path.abspath('./build/infusion/base')])
+c_env.Append(CPPPATH = [os.path.abspath('../../../vm/c')])
+# TODO: move config somewhere else
+c_env.Append(CPPPATH = [os.path.abspath('../../../config/native/c')])
+c_env.Append(CPPPATH = [os.path.abspath('../../../architecture/native/c/')])
+
+infusion = c_env.StaticLibrary('build/base', infusion_c + env.Glob('build/base/*.c'))
+
+# add infusion and infusion header as well a c header to target
+infusion += infusion_dih + infusion_di + infusion_h
+
+env['LIB_BASE_INFUSION']     = infusion
+env['LIB_BASE_CLASSES_PATH'] = classes_path
+
+"""
+
+
+
 
 def infusion_action_generator(target, source, env, for_signature):
 	flags = {'.dih': '-h', '.di': '-o', '.h': '-d', '.c': '-c'}
