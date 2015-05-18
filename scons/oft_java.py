@@ -96,38 +96,9 @@ def java_to_jar_action(target, source, env):
 	env.Execute(jar)
 	return 0
 
-
-def find_java_files(directory):
-	""" helper function, that walks the dir and returns a list of *.java
-	    files found.
-	"""
-	java_files = []
-	for root, dirs, files in os.walk(directory):
-		for f in files:
-			if os.path.splitext(f)[1] == '.java':
-				java_files.append(os.path.join(root, f))
-	return java_files
-
 def java_to_jar_emitter(target, source, env):
 	""" this emitter searches through directories for class files """
-
-	java_src = []
-	files_already_found = []
-
-	for s in source:
-		path = os.path.abspath(str(s))
-		if isinstance(s, SCons.Node.FS.File) or os.path.isfile(path):
-			if not path in files_already_found:
-				java_src.append(s)
-				files_already_found.append(path)
-		elif isinstance(s, SCons.Node.FS.Dir) or os.path.isdir(path):
-			java_files = find_java_files(path)
-			for f in java_files:
-				if not f in files_already_found:
-					java_src.append(f)
-					files_already_found.append(f)
-
-	return target, java_src
+	return target, env.FindFiles(source, '.java')
 
 def java_to_jar_string(target, source, env):
 	""" returns an empty string, because the command run by the python action
@@ -163,6 +134,9 @@ def run_jar(env, jar, parameters=""):
 	return env.Command('run_jar_file', jar, 'java -jar {} {}'.format(jar[0].abspath, parameters))
 
 def generate(env):
+	# oft java requires the find files tool
+	env.Tool('find_files')
+
 	# JavaToJar Builder
 	java_to_jar_builder = SCons.Builder.Builder(
 		action = env.Action(java_to_jar_action, java_to_jar_string),

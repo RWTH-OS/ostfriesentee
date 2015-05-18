@@ -70,6 +70,7 @@ def generate(env):
 	env.SetLogLevel(log_level)
 
 	# load other tools
+	env.Tool('find_files')
 	env.Tool('oft_java')
 	env.Tool('infuser')
 	env.Tool('c_array')
