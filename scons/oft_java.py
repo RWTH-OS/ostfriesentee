@@ -98,7 +98,9 @@ def java_to_jar_action(target, source, env):
 
 def java_to_jar_emitter(target, source, env):
 	""" this emitter searches through directories for class files """
-	return target, env.FindFiles(source, '.java')[0]
+	java_src =  env.FindFiles(source, '.java')[0]
+	manifest = [str(s) for s in source if os.path.basename(str(s)) == 'MANIFEST.MF']
+	return target, java_src + manifest
 
 def java_to_jar_string(target, source, env):
 	""" returns an empty string, because the command run by the python action
