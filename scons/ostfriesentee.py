@@ -58,13 +58,14 @@ def run_program(env, program, parameters=""):
 
 def generate(env):
 	# initialize environment globals that other tools rely on
-	env.Append(OT_SCONS_TOOLS=os.path.dirname(os.path.abspath(__file__)))
+	env['OFT_SCONS_TOOLS'] = os.path.dirname(os.path.abspath(__file__))
+	env['OFT_ROOT'] = os.path.abspath(os.path.join(env['OFT_SCONS_TOOLS'], '..'))
 
 	# initialize logger
 	env.Tool('logger')
-	log_level = ARGUMENTS.get('--log-level', None)
+	log_level = ARGUMENTS.get('log-level', None)
 	if log_level == None:
-		log_level = ARGUMENTS.get('-ll', None)
+		log_level = ARGUMENTS.get('ll', None)
 	if log_level == None:
 		log_level = 'warn'
 	env.SetLogLevel(log_level)
@@ -74,6 +75,7 @@ def generate(env):
 	env.Tool('oft_java')
 	env.Tool('infuser')
 	env.Tool('c_array')
+	env.Tool('target')
 
 	# helper functions
 	env.AddMethod(run_program, 'Run')

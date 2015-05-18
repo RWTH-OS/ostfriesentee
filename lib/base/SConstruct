@@ -21,6 +21,7 @@ import os
 
 env = Environment(toolpath = [os.path.join('..', '..', 'scons')], tools = ['default', 'ostfriesentee'])
 
+env.Architecture("amd64")
 infusion = SConscript(['SConscript'], exports = 'env')
 
 env.Default(infusion)

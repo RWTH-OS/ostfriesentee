@@ -142,7 +142,7 @@ def infusion_emitter(target, source, env):
 
 def generate(env):
 	# 1.) find the infusor directory
-	sconscript = os.path.join(env['OT_SCONS_TOOLS'], '..', 'SConscript')
+	sconscript = os.path.join(env['OFT_SCONS_TOOLS'], '..', 'SConscript')
 	if not os.path.isfile(sconscript):
 		env.Error("Could not find the infuser. `{}` does not exist.".format(sconscript))
 		exit(1)
