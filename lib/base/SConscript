@@ -17,47 +17,8 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Ostfriesentee.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
-
 Import('env')
 
-# TODO: make this less hacky
-# make sure to specify lib only once
-if 'LIB_BASE_INFUSION' in env and 'LIB_BASE_CLASSES_PATH' in env:
-	infusion     = env['LIB_BASE_INFUSION']
-	classes_path = env['LIB_BASE_CLASSES_PATH']
-	Return('infusion', 'classes_path')
+base = env.OstfriesenteeLibrary('base', ['c', 'java'])
 
-# build java code and run infuser
-env_java = env.Clone()
-env_java.AppendUnique(JAVACFLAGS = ['-encoding', 'utf8', '-Xlint:deprecation', '-Xlint:unchecked'])
-# do not depend on system jars
-env_java['JAVABOOTCLASSPATH'] = []
-classes_path = os.path.abspath('build/classes')
-classes      = env_java.Java(classes_path, 'java')
-infusion_res = env_java.Infusion('build/infusion/base', classes)
-
-# split up infusion
-infusion_dih = [os.path.abspath(str(f)) for f in infusion_res if str(f).endswith('.dih')]
-infusion_di  = [os.path.abspath(str(f)) for f in infusion_res if str(f).endswith('.di')]
-infusion_c   = [os.path.abspath(str(f)) for f in infusion_res if str(f).endswith('.c')]
-infusion_h   = [os.path.abspath(str(f)) for f in infusion_res if str(f).endswith('.h')]
-
-# build c code
-c_env = env.Clone()
-c_env.VariantDir(variant_dir='build/base', src_dir='c')
-c_env.Append(CPPPATH = [os.path.abspath('./build/infusion/base')])
-c_env.Append(CPPPATH = [os.path.abspath('../../../vm/c')])
-# TODO: move config somewhere else
-c_env.Append(CPPPATH = [os.path.abspath('../../../config/native/c')])
-c_env.Append(CPPPATH = [os.path.abspath('../../../architecture/native/c/')])
-
-infusion = c_env.StaticLibrary('build/base', infusion_c + env.Glob('build/base/*.c'))
-
-# add infusion and infusion header as well a c header to target
-infusion += infusion_dih + infusion_di + infusion_h
-
-env['LIB_BASE_INFUSION']     = infusion
-env['LIB_BASE_CLASSES_PATH'] = classes_path
-
-Return('infusion', 'classes_path')
+Return('base')

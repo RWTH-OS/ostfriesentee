@@ -85,5 +85,8 @@ def generate(env):
 		env['OFT_BUILDPATH'] = os.path.join(Dir('.').abspath, 'build')
 	print(env['OFT_BUILDPATH'])
 
+	# start list of ostfiresentee libraries
+	env['OFT_LIBS'] = []
+
 def exists(env):
 	return 1

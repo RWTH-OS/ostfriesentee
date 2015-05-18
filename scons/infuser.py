@@ -29,11 +29,11 @@ it should be possible to load an app at run time, while
 a library needs to be compiled into the executable.
 """
 
-import os
+import os, re
 from SCons.Script import SConscript, File, Depends
 import SCons.Util
 
-def ostfriesentee_library_action(name, source, env):
+def ostfriesentee_library_method(env, name, source):
 	""" This is a pseudo builder that tells scons how to generate a
 	    `OstfriesenteeLibrary`:
 	    * may consist of Java and C sources
@@ -43,53 +43,51 @@ def ostfriesentee_library_action(name, source, env):
 	    * _input_: *.java, *.c
 	    * _output_: *.a, *.di, *.dih
 	"""
+	# check if name is valid and determine buildpath
+	if not re.match('[a-zA-Z][a-zA-Z0-9_]*', name):
+		env.Error("Invalid name `{}`. Please use C identifier conventions.".format(name))
+		exit(1)
+	build_path = os.path.join(env['OFT_BUILDPATH'], 'lib', name)
 
+	# build java sources
+	java_src = env.FindFiles(source, ".java")[0]
+	jar_name = os.path.join(build_path, name + '.jar')
+	env_java = env.Clone()
+	for lib in env['OFT_LIBS']:
+		jar_dep = os.path.join(env['OFT_BUILDPATH'], 'lib', lib, lib + '.jar')
+		env_java.AppendUnique(JAVACLASSPATH=jar_dep)
+		Depends(jar_name, jar_dep)
+	# do not depend on system jars
+	env_java['JAVABOOTCLASSPATH'] = []
+	jar = env.JavaToJar(os.path.join(build_path, name + '.jar'), java_src)
 
+	# make infusion
+	infusion_src = [jar]
+	for lib in env['OFT_LIBS']:
+		infusion_src.append(os.path.join(env['OFT_BUILDPATH'], 'lib', lib, lib + '.dih'))
+	infusion = env.Infusion(build_path, infusion_src)
+	def find_suffix(files, suffix):
+		return [os.path.abspath(str(ff)) for ff in files if str(ff).endswith(suffix)]
+	infusion_dih = find_suffix('.dih')
+	infusion_di  = find_suffix('.di')
+	infusion_c   = find_suffix('.c')
 
+	# compile native code
+	(c_src, c_src_dir) = env.FindFiles(source, ".c")
+	c_env = env.Clone()
+	# place object files in buildpath
+	c_env.VariantDir(variant_dir=build_path, src_dir=c_src_dir)
+	c_var_src = []
+	for cc in c_src:
+		abs_path = os.path.abspath(str(c_src))
+		rel = os.path.relpath(c_src_dir, abs_path)
+		c_var_src.append(os.path.join(build_path, rel))
+	# for infusion_h file
+	c_env.AppendUnique(CPPPATH = [buildpath])
+	# tell scons how to build static lib
+	lib = c_env.StaticLibrary(os.path.join(build_path, name), infusion_c + c_var_src)
 
-"""
-# TODO: make this less hacky
-# make sure to specify lib only once
-if 'LIB_BASE_INFUSION' in env and 'LIB_BASE_CLASSES_PATH' in env:
-	infusion     = env['LIB_BASE_INFUSION']
-	classes_path = env['LIB_BASE_CLASSES_PATH']
-	Return('infusion', 'classes_path')
-
-# build java code and run infuser
-env_java = env.Clone()
-env_java.AppendUnique(JAVACFLAGS = ['-encoding', 'utf8', '-Xlint:deprecation', '-Xlint:unchecked'])
-# do not depend on system jars
-env_java['JAVABOOTCLASSPATH'] = []
-classes_path = os.path.abspath('build/classes')
-classes      = env_java.Java(classes_path, 'java')
-infusion_res = env_java.Infusion('build/infusion/base', classes)
-
-# split up infusion
-infusion_dih = [os.path.abspath(str(f)) for f in infusion_res if str(f).endswith('.dih')]
-infusion_di  = [os.path.abspath(str(f)) for f in infusion_res if str(f).endswith('.di')]
-infusion_c   = [os.path.abspath(str(f)) for f in infusion_res if str(f).endswith('.c')]
-infusion_h   = [os.path.abspath(str(f)) for f in infusion_res if str(f).endswith('.h')]
-
-# build c code
-c_env = env.Clone()
-c_env.VariantDir(variant_dir='build/base', src_dir='c')
-c_env.Append(CPPPATH = [os.path.abspath('./build/infusion/base')])
-c_env.Append(CPPPATH = [os.path.abspath('../../../vm/c')])
-# TODO: move config somewhere else
-c_env.Append(CPPPATH = [os.path.abspath('../../../config/native/c')])
-c_env.Append(CPPPATH = [os.path.abspath('../../../architecture/native/c/')])
-
-infusion = c_env.StaticLibrary('build/base', infusion_c + env.Glob('build/base/*.c'))
-
-# add infusion and infusion header as well a c header to target
-infusion += infusion_dih + infusion_di + infusion_h
-
-env['LIB_BASE_INFUSION']     = infusion
-env['LIB_BASE_CLASSES_PATH'] = classes_path
-
-"""
-
-
+	return lib + infusion_di + infusion_dih
 
 
 def infusion_action_generator(target, source, env, for_signature):
@@ -161,6 +159,9 @@ def generate(env):
 		source_factory = SCons.Node.FS.Entry)
 
 	env.Append(BUILDERS = { 'Infusion': infusion_builder })
+
+	# 4.) add ostfriesentee pseudo builders
+	env.AddMethod(ostfriesentee_library_method, 'OstfriesenteeLibrary')
 
 def exists(env):
 	return 1
