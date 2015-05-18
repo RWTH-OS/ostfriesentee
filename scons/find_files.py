@@ -29,6 +29,8 @@ class FileFinder(object):
 		# list that contains the absolute paths of all files and directories
 		# that where found (this might include unwanted files)
 		self.paths_found = []
+		# tracks the common path of files found
+		self.common_path = None
 		# list that contans the SCons.Node.FS.File objects for every file found
 		# that had the correct suffix
 		self.files_found = []
@@ -54,6 +56,12 @@ class FileFinder(object):
 			if not os.path.splitext(path)[1] in self.suffix:
 				return
 			self.files_found.append(ff)
+			# update common path
+			if not self.common_path:
+				self.common_path = os.path.dirname(path)
+			else:
+				self.common_path = os.path.commonprefix(
+					[self.common_path, os.path.dirname(path)])
 
 	def _parse_suffix(self, suffix_raw):
 		""" makes sure that the suffixes are the correct format """
@@ -71,7 +79,7 @@ def find_files_method(env, files, suffix):
 	"""
 	ff = FileFinder(suffix)
 	ff.find(files)
-	return ff.files_found
+	return (ff.files_found, ff.common_path)
 
 
 def generate(env):

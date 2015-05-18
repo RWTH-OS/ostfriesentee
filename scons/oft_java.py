@@ -98,7 +98,7 @@ def java_to_jar_action(target, source, env):
 
 def java_to_jar_emitter(target, source, env):
 	""" this emitter searches through directories for class files """
-	return target, env.FindFiles(source, '.java')
+	return target, env.FindFiles(source, '.java')[0]
 
 def java_to_jar_string(target, source, env):
 	""" returns an empty string, because the command run by the python action
@@ -156,6 +156,10 @@ def generate(env):
 
 	# helper functions
 	env.AddMethod(run_jar, 'RunJar')
+
+	# default Java environment settings
+	env.AppendUnique(JAVACFLAGS =
+		['-encoding', 'utf8', '-Xlint:deprecation', '-Xlint:unchecked'])
 
 def exists(env):
 	return 1
