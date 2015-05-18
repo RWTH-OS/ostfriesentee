@@ -125,8 +125,8 @@ def infusion_emitter(target, source, env):
 	# check source files
 	for s in source:
 		file_name = str(s)
-		if not (file_name.endswith('.class') or file_name.endswith('.dih')):
-			env.Error("Infusion source `{}` is neither *.class nor *.dih".format(file_name))
+		if not os.path.splitext(file_name)[1] in ['.class', '.dih', '.jar']:
+			env.Error("Infusion source `{}` is neither *.class nor *.dih nor *.jar".format(file_name))
 			exit(1)
 
 	# create file targets
