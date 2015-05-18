@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Ostfriesentee.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include <stdint.h>
 
 // use 64-bit values to store time
 typedef int64_t dj_time_t;
