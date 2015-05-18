@@ -62,6 +62,10 @@ def generate(env):
 	env['OFT_ROOT'] = os.path.abspath(os.path.join(env['OFT_SCONS_TOOLS'], '..'))
 	env['OFT_VM_INCLUDE'] = os.path.abspath(os.path.join(env['OFT_ROOT'], '..', 'vm', 'c'))
 
+	# import terminal type to enable gcc/clang to print colored output
+	# http://stackoverflow.com/questions/9922521/why-doesnt-clang-show-color-output-under-scons
+	env['ENV']['TERM'] = os.environ['TERM']
+
 	# initialize logger
 	env.Tool('logger')
 	log_level = ARGUMENTS.get('log-level', None)
