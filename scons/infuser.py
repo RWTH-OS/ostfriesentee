@@ -79,8 +79,8 @@ def ostfriesentee_library_method(env, name, source):
 	c_env.VariantDir(variant_dir=build_path, src_dir=c_src_dir)
 	c_var_src = []
 	for cc in c_src:
-		abs_path = os.path.abspath(str(c_src))
-		rel = os.path.relpath(c_src_dir, abs_path)
+		abs_path = os.path.abspath(str(cc))
+		rel = os.path.relpath(abs_path, c_src_dir)
 		c_var_src.append(os.path.join(build_path, rel))
 	# for infusion_h file
 	c_env.AppendUnique(CPPPATH = [build_path])
