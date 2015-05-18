@@ -24,7 +24,6 @@
 
 #include "execution.h"
 #include "global_id.h"
-#include "debug.h"
 #include "heap.h"
 #include "panic.h"
 
