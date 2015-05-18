@@ -19,6 +19,7 @@
 
 Import('env')
 
+env.AppendUnique(CPPPATH=[env['OFT_VM_INCLUDE']])
 base = env.OstfriesenteeLibrary('base', ['c', 'java'])
 
 Return('base')
