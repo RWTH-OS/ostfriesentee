@@ -68,9 +68,9 @@ def ostfriesentee_library_method(env, name, source):
 	infusion = env.Infusion(build_path, infusion_src)
 	def find_suffix(files, suffix):
 		return [os.path.abspath(str(ff)) for ff in files if str(ff).endswith(suffix)]
-	infusion_dih = find_suffix('.dih')
-	infusion_di  = find_suffix('.di')
-	infusion_c   = find_suffix('.c')
+	infusion_dih = find_suffix(infusion, '.dih')
+	infusion_di  = find_suffix(infusion, '.di')
+	infusion_c   = find_suffix(infusion, '.c')
 
 	# compile native code
 	(c_src, c_src_dir) = env.FindFiles(source, ".c")
@@ -83,7 +83,7 @@ def ostfriesentee_library_method(env, name, source):
 		rel = os.path.relpath(c_src_dir, abs_path)
 		c_var_src.append(os.path.join(build_path, rel))
 	# for infusion_h file
-	c_env.AppendUnique(CPPPATH = [buildpath])
+	c_env.AppendUnique(CPPPATH = [build_path])
 	# tell scons how to build static lib
 	lib = c_env.StaticLibrary(os.path.join(build_path, name), infusion_c + c_var_src)
 
