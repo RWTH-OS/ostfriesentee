@@ -28,6 +28,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -101,14 +104,16 @@ public class InfuserArguments
 		return file.exists();
 	}
 
+
 	/**
 	 * Creates a new InternalInfusion object from the parameters in this class. It creates a header
 	 * with the given name and version, parses and adds all the class files and header files.
 	 * The resulting Infusion object is then ready for further processing.
 	 * @return a new InternalInfusion instance with classes and headers loaded
 	 * @throws InfuserException
+	 * @throws IOException
 	 */
-	public InternalInfusion createInfusion(int majorVersion, int minorVersion) throws InfuserException
+	public InternalInfusion createInfusion(int majorVersion, int minorVersion) throws InfuserException, IOException
 	{
 		// create an infusion and create the header
 		InternalHeader header = new InternalHeader(infusionName, majorVersion, minorVersion);
@@ -146,24 +151,37 @@ public class InfuserArguments
 		}
 
 		// add class files
-		for (String classFileName : inputFiles)
+		for (String fileName : inputFiles)
 		{
-			if(!classFileName.endsWith(".class")) {	// if this is not a java class file
-				continue;
-			}
-			Logging.instance.printlnVerbose(ARGUMENTS_PARSING, String.format("Loading class file %s", classFileName));
-			if (!fileExists(classFileName))
-			{
-				throw new InfuserException(String.format("File %s does not exist", classFileName));
-			} else
-			{
-				try {
-					ClassParser parser = new ClassParser(classFileName);
-					JavaClass javaClass = parser.parse();
-					infusion.addJavaClass(javaClass);
-				} catch (IOException ex)
+			Logging.instance.printlnVerbose(ARGUMENTS_PARSING, String.format("Loading jar file %s", fileName));
+			if(fileName.endsWith(".jar")) {
+				JarFile jarFile = new JarFile(fileName);
+				Enumeration<JarEntry> entries = jarFile.entries();
+				while(entries.hasMoreElements()) {
+					JarEntry entry = entries.nextElement();
+					if(entry.getName().endsWith(".class")) {
+						Logging.instance.printlnVerbose(ARGUMENTS_PARSING, String.format("Loading class %s", entry.getName()));
+						ClassParser parser = new ClassParser(fileName, entry.getName());
+						JavaClass javaClass = parser.parse();
+						infusion.addJavaClass(javaClass);
+					}
+				}
+				jarFile.close();
+			} else if (fileName.endsWith(".class")) {
+				Logging.instance.printlnVerbose(ARGUMENTS_PARSING, String.format("Loading class file %s", fileName));
+				if (!fileExists(fileName))
 				{
-					throw new InfuserException(String.format("Unable to parse class file %s", classFileName), ex);
+					throw new InfuserException(String.format("File %s does not exist", fileName));
+				} else
+				{
+					try {
+						ClassParser parser = new ClassParser(fileName);
+						JavaClass javaClass = parser.parse();
+						infusion.addJavaClass(javaClass);
+					} catch (IOException ex)
+					{
+						throw new InfuserException(String.format("Unable to parse class file %s", fileName), ex);
+					}
 				}
 			}
 		}

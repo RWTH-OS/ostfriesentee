@@ -22,6 +22,7 @@
 package org.csiro.darjeeling.infuser;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import org.csiro.darjeeling.infuser.logging.Logging;
 
@@ -58,6 +59,11 @@ public class InfuserCommandLine
 		catch (InfuserException ex)
 		{
 			System.out.println(ex.getMessage());
+			ex.printStackTrace();
+			System.exit(-1);
+		} catch (IOException ex) {
+			System.out.println(ex.getMessage());
+			ex.printStackTrace();
 			System.exit(-1);
 		}
 

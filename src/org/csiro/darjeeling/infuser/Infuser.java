@@ -293,8 +293,9 @@ public class Infuser
 	/**
 	 * Process the input and produce output :-)
 	 * @throws InfuserException
+	 * @throws IOException
 	 */
-	public void process() throws InfuserException
+	public void process() throws InfuserException, IOException
 	{
 		// check if the -name option was given
 		if (infuserArguments.getInfusionName()==null)
