@@ -118,6 +118,9 @@ def ostfriesentee_library_method(env, name, source, **kwargs):
 			c_var_src.append(os.path.join(build_path, rel))
 		# for infusion_h file
 		c_env.AppendUnique(CPPPATH = [build_path])
+		# library header files
+		for lib in libs_dep:
+			c_env.AppendUnique(CPPPATH = [os.path.join(env['OFT_BUILDPATH'], 'lib', lib)])
 		# tell scons how to build static lib
 		target += c_env.StaticLibrary(os.path.join(build_path, name), infusion_c + c_var_src)
 
