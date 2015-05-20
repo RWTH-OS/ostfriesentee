@@ -33,7 +33,7 @@ import os, re
 from SCons.Script import SConscript, File, Depends
 import SCons.Util
 
-def ostfriesentee_library_method(env, name, source):
+def ostfriesentee_library_method(env, name, source, **kwargs):
 	""" This is a pseudo builder that tells scons how to generate a
 	    `OstfriesenteeLibrary`:
 	    * may consist of Java and C sources
@@ -41,7 +41,7 @@ def ostfriesentee_library_method(env, name, source):
 	    * needs to be linked into the executable containing the Ostfriesentee jvm
 	    * other libraries as well as apps may depend on it
 	    * _input_: *.java, *.c
-	    * _output_: *.a, *.di, *.dih
+	    * _output_: *.a, *.di, *.dih, *.jar
 	"""
 	# check if name is valid and determine buildpath
 	if not re.match('[a-zA-Z][a-zA-Z0-9_]*', name):
@@ -49,21 +49,30 @@ def ostfriesentee_library_method(env, name, source):
 		exit(1)
 	build_path = os.path.join(env['OFT_BUILDPATH'], 'lib', name)
 
+	# parse variable keyword args
+	libs_dep = list(env['OFT_LIBS'])
+	if 'OFT_LIBS' in kwargs:
+		libs_dep += list(kwargs['OFT_LIBS'])
+	is_app = False
+	if 'is_app' in kwargs:
+		is_app = bool(kwargs['is_app'])
+
 	# build java sources
 	java_src = env.FindFiles(source, ".java")[0]
 	jar_name = os.path.join(build_path, name + '.jar')
 	env_java = env.Clone()
-	for lib in env['OFT_LIBS']:
+	for lib in libs_dep:
 		jar_dep = os.path.join(env['OFT_BUILDPATH'], 'lib', lib, lib + '.jar')
 		env_java.AppendUnique(JAVACLASSPATH=jar_dep)
 		Depends(jar_name, jar_dep)
 	# do not depend on system jars
 	env_java['JAVABOOTCLASSPATH'] = []
 	jar = env.JavaToJar(os.path.join(build_path, name + '.jar'), java_src)
+	target = [jar]
 
 	# make infusion
-	infusion_src = [jar]
-	for lib in env['OFT_LIBS']:
+	infusion_src = list(target)
+	for lib in libs_dep:
 		infusion_src.append(os.path.join(env['OFT_BUILDPATH'], 'lib', lib, lib + '.dih'))
 	infusion = env.Infusion(build_path, infusion_src)
 	def find_suffix(files, suffix):
@@ -72,22 +81,44 @@ def ostfriesentee_library_method(env, name, source):
 	infusion_di  = find_suffix(infusion, '.di')
 	infusion_c   = find_suffix(infusion, '.c')
 
+	# if this is an app, there is no c code and no dih file to emit, because
+	# no dependency on an app is allowed
+	if is_app:
+		return target + infusion_di
+
+	target += infusion_di + infusion_dih
+
 	# compile native code
 	(c_src, c_src_dir) = env.FindFiles(source, ".c")
-	c_env = env.Clone()
-	# place object files in buildpath
-	c_env.VariantDir(variant_dir=build_path, src_dir=c_src_dir)
-	c_var_src = []
-	for cc in c_src:
-		abs_path = os.path.abspath(str(cc))
-		rel = os.path.relpath(abs_path, c_src_dir)
-		c_var_src.append(os.path.join(build_path, rel))
-	# for infusion_h file
-	c_env.AppendUnique(CPPPATH = [build_path])
-	# tell scons how to build static lib
-	lib = c_env.StaticLibrary(os.path.join(build_path, name), infusion_c + c_var_src)
+	if len(c_src) > 0:
+		c_env = env.Clone()
+		# place object files in buildpath
+		c_env.VariantDir(variant_dir=build_path, src_dir=c_src_dir)
+		c_var_src = []
+		for cc in c_src:
+			abs_path = os.path.abspath(str(cc))
+			rel = os.path.relpath(abs_path, c_src_dir)
+			c_var_src.append(os.path.join(build_path, rel))
+		# for infusion_h file
+		c_env.AppendUnique(CPPPATH = [build_path])
+		# tell scons how to build static lib
+		target += c_env.StaticLibrary(os.path.join(build_path, name), infusion_c + c_var_src)
 
-	return lib + infusion_di + infusion_dih
+	return target
+
+
+def ostfriesentee_application_method(env, name, source, **kwargs):
+	""" This is a pseudo builder that tells scons how to generate a
+	    `OstfriesenteeApplication`:
+	    * may consist only of Java sources
+	    * may depend on other libraries (specify with env['OFT_LIBS'])
+	    * in the future it will be possible to load applications during runtime
+	    * other libraries or apps most not depend on it
+	    * _input_: *.java
+	    * _output_: *.jar, *.di
+	"""
+	kwargs['is_app'] = True
+	return env.OstfriesenteeLibrary(name, source, **kwargs)
 
 
 def infusion_action_generator(target, source, env, for_signature):
@@ -161,7 +192,8 @@ def generate(env):
 	env.Append(BUILDERS = { 'Infusion': infusion_builder })
 
 	# 4.) add ostfriesentee pseudo builders
-	env.AddMethod(ostfriesentee_library_method, 'OstfriesenteeLibrary')
+	env.AddMethod(ostfriesentee_library_method,     'OstfriesenteeLibrary')
+	env.AddMethod(ostfriesentee_application_method, 'OstfriesenteeApplication')
 
 def exists(env):
 	return 1
