@@ -34,7 +34,8 @@ def set_arch_amd64(env):
 		"-Wall",
 		"-Wextra",
 		"-Wundef",
-		"-ggdb"
+		"-ggdb",
+		"-std=c11"
 	]
 
 def set_arch_method(env, arch):
