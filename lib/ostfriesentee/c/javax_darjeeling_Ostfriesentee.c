@@ -18,22 +18,17 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Darjeeling.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
- 
- 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 
 // generated at infusion time
-#include "jlib_base.h"
+#include <jlib_base.h>
 
-#include "vm.h"
-#include "execution.h"
-#include "heap.h"
-#include "djtimer.h"
-#include "panic.h"
-#include "array.h"
+#include <execution.h>
+#include <array.h>
+
+#include <unistd.h>
+
+// standard posix write, only needs to accept fildes=1 for stdout
+ssize_t write(int fildes, const void *buf, size_t nbyte);
 
 void javax_ostfriesentee_Ostfriesentee_void__print_java_lang_String()
 {
@@ -55,8 +50,7 @@ void javax_ostfriesentee_Ostfriesentee_void__print_java_lang_String()
 		return;
 	}
 
-	for (int i=0; i<byteArray->array.length; i++)
-		printf("%c", byteArray->data.bytes[i]);
+	write(1, byteArray->data.bytes, byteArray->array.length);
 }
 
 //int javax.darjeeling.Darjeeling.getMemFree()
