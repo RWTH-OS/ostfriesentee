@@ -21,7 +21,7 @@
  
 #ifndef __config_h
 #define __config_h
-#include <sys/types.h>
+#include <stdint.h>
 
 // Allocate 4k heap for the VM
 #define MEMSIZE 4096
