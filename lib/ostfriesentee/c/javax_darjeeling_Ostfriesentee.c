@@ -35,7 +35,7 @@
 #include "panic.h"
 #include "array.h"
 
-void javax_darjeeling_Darjeeling_void__print_java_lang_String()
+void javax_ostfriesentee_Ostfriesentee_void__print_java_lang_String()
 {
 	// Pop string object from the stack.
 	BASE_STRUCT_java_lang_String * stringObject = (BASE_STRUCT_java_lang_String*)REF_TO_VOIDP(dj_exec_stackPopRef());
@@ -60,7 +60,7 @@ void javax_darjeeling_Darjeeling_void__print_java_lang_String()
 }
 
 //int javax.darjeeling.Darjeeling.getMemFree()
-void javax_darjeeling_Darjeeling_int_getMemFree()
+void javax_ostfriesentee_Ostfriesentee_int_getMemFree()
 {
 	dj_exec_stackPushInt(dj_mem_getFree());
 }
