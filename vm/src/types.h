@@ -88,7 +88,7 @@ __attribute__ ((__packed__))
 #endif
 ;
 
-typedef void (*dj_native_handler)(dj_global_id);
+typedef void (*dj_native_handler)(uint8_t);
 
 struct _dj_named_native_handler
 {

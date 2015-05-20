@@ -867,7 +867,7 @@ static inline void callMethod(dj_global_id methodImplId, int virtualCall)
 			oldNumRefStack = (ref_t *)dj_frame_getStackEnd(frame) - refStack;
 
 			// execute the method by calling the infusion's native handler
-			handler(methodImplId);
+			handler(methodImplId.entity_id);
 
 			// The reference stack needs right treatment now, so remember the
 			// contract for parameters and return values of native methods:
