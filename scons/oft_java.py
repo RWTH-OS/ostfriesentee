@@ -54,7 +54,7 @@ of predicting emitted `.class` files.
 
 
 import SCons
-from SCons.Script import Mkdir, Depends
+from SCons.Script import Mkdir, Depends, Delete
 import os
 
 def flag_if_not_empty(env, flag, env_var, default=None):
@@ -91,6 +91,9 @@ def java_to_jar_action(target, source, env):
 		jar += " {}".format(str(manifest[0]))
 	jar += " -C {} .".format(class_dir)
 
+	# make sure to create an empty class dir, since scons does not track
+	# files left over from the last build
+	env.Execute(Delete(class_dir))
 	env.Execute(Mkdir(class_dir))
 	ret = env.Execute(javac)
 	if ret != 0: return ret
