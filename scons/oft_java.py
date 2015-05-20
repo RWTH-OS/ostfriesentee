@@ -92,9 +92,9 @@ def java_to_jar_action(target, source, env):
 	jar += " -C {} .".format(class_dir)
 
 	env.Execute(Mkdir(class_dir))
-	env.Execute(javac)
-	env.Execute(jar)
-	return 0
+	ret = env.Execute(javac)
+	if ret != 0: return ret
+	return env.Execute(jar)
 
 def java_to_jar_emitter(target, source, env):
 	""" this emitter searches through directories for class files """
