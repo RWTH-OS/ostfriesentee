@@ -27,19 +27,72 @@ tries to configure the environment for the user architecture.
 
 import os
 
-def set_arch_amd64(env):
-	env.Info("Building for amd64 arch.")
+def set_arch_common(env):
 	env['CCFLAGS'] = [
 		"-funsigned-char",
+#		"-Wstrict-prototypes",
 		"-Wall",
+		"-Werror=maybe-uninitialized",
+		"-Wformat",
 		"-Wextra",
 		"-Wundef",
-		"-ggdb",
+		"-Winit-self",
+		"-Wpointer-arith",
+		"-Wunused",
 		"-std=c11"
 	]
 
+def set_arch_amd64(env):
+	env.Info("Building for amd64 arch.")
+	env.AppendUnique(CCFLAGS = ["-ggdb"])
+
+def set_arch_cortexm4f(env):
+	env.Info("Building for cortex-m4f arch.")
+
+	mcpu = "cortex-m4"
+
+	env['PROGSUFFIX'] = ".elf"
+
+	# use arm-none-eabi- toolchain
+	env['CC'] = "arm-none-eabi-gcc"
+	env['CXX'] = "arm-none-eabi-g++"
+	env['AS'] = "arm-none-eabi-as"
+	env['OBJCOPY'] = "arm-none-eabi-objcopy"
+	env['OBJDUMP'] = "arm-none-eabi-objdump"
+	env['AR'] = "arm-none-eabi-ar"
+	env['NM'] = "arm-none-eabi-nm"
+	env['RANLIB'] = "arm-none-eabi-ranlib"
+	env['SIZE'] = "arm-none-eabi-size"
+
+	env.AppendUnique(CCFLAGS = [
+		"-Os",
+		"-gdwarf-2",
+		"-mcpu=" + mcpu,
+		"-mlittle-endian",
+		"-mthumb",
+		"-mno-thumb-interwork",
+		"-nostartfiles",
+		"-ffunction-sections",
+		"-fdata-sections",
+		"-fno-builtin"
+	])
+
+	env['LINKFLAGS'] = [
+		"-mcpu=" + mcpu,
+		"-mthumb",
+		"-Wl,--relax",
+		"-Wl,--gc-sections",
+		"-nostartfiles",
+#		"-L$LINKPATH",
+#		"-T$LINKFILE",
+#		"-Wl,-Map=${TARGET.base}.map,--cref",
+	]
+
 def set_arch_method(env, arch):
-	available_arch = {'amd64': set_arch_amd64}	# ['amd64', 'cortex-m4']
+	available_arch = {
+		'amd64': set_arch_amd64,
+		'cortex-m4f': set_arch_cortexm4f
+	}
 
 	arch = arch.lower()
 	if arch not in available_arch:
@@ -53,6 +106,10 @@ def set_arch_method(env, arch):
 		exit(1)
 	env.Append(CPPPATH = [inc])
 
+	# load common settings
+	set_arch_common(env)
+
+	# load target specific settings
 	return available_arch[arch](env)
 
 def generate(env):
