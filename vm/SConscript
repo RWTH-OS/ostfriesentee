@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+# SConscript
 #
 # Copyright (c) 2015 Kevin Laeufer <kevin.laeufer@rwth-aachen.de>
 #
@@ -18,11 +17,21 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Ostfriesentee.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys
-sys.path.append('scripts')
-from checker import Checker
+import os
 
-if __name__ == "__main__":
-	c = Checker()
-	c.run(['architecture', 'infuser', 'lib', 'vm'])
-	sys.exit(c.printreport())
+Import('env')
+
+# build base lib
+base_lib = SConscript(['../lib/base/SConscript'], exports = 'env')
+base_lib_inc = os.path.join(env['OFT_BUILDPATH'], 'lib', 'base')
+
+# build c code
+c_env = env.Clone()
+c_env.VariantDir(variant_dir='build/vm', src_dir='src')
+c_env.Append(CPPPATH = [os.path.abspath('c')])
+c_env.Append(CPPPATH = [base_lib_inc])
+
+vm = c_env.StaticLibrary('build/vm/vm', env.Glob('build/vm/*.c'))
+
+
+Return('vm')

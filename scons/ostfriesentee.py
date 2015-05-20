@@ -60,7 +60,7 @@ def generate(env):
 	# initialize environment globals that other tools rely on
 	env['OFT_SCONS_TOOLS'] = os.path.dirname(os.path.abspath(__file__))
 	env['OFT_ROOT'] = os.path.abspath(os.path.join(env['OFT_SCONS_TOOLS'], '..'))
-	env['OFT_VM_INCLUDE'] = os.path.abspath(os.path.join(env['OFT_ROOT'], '..', 'vm', 'c'))
+	env['OFT_VM_INCLUDE'] = os.path.abspath(os.path.join(env['OFT_ROOT'], 'vm', 'src'))
 
 	# import terminal type to enable gcc/clang to print colored output
 	# http://stackoverflow.com/questions/9922521/why-doesnt-clang-show-color-output-under-scons
