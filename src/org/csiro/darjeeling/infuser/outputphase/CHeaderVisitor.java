@@ -73,6 +73,7 @@ public class CHeaderVisitor extends DescendingVisitor
 
 		writer.println("");
 		writer.println("#include <stdint.h>");
+		writer.println("#include <pointerwidth.h> // for ref_t");
 		writer.println("");
 		writer.println(String.format("void %s_native_handler(uint8_t id);", header.getInfusionName()));
 		writer.println("");
