@@ -57,7 +57,7 @@ class Checker(object):
 			return 1
 
 	def _check(self, path):
-		exitStatus = subprocess.call(['scons', '-Q', '-C', path, 'build'])
+		exitStatus = subprocess.call(['scons', '-Q', '-C', path])
 		if exitStatus == 0:
 			self.report.append("check: {0} -> {1}".format(path, self.ok))
 		else:
