@@ -25,8 +25,6 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "types.h"
-
 
 // The null java reference
 #define nullref ((ref_t)0)
