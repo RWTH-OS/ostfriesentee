@@ -66,6 +66,9 @@ def generate(env):
 	# http://stackoverflow.com/questions/9922521/why-doesnt-clang-show-color-output-under-scons
 	env['ENV']['TERM'] = os.environ['TERM']
 
+	# copy path from os environment
+	env['ENV']['PATH'] = os.environ['PATH']
+
 	# initialize logger
 	env.Tool('logger')
 	log_level = ARGUMENTS.get('log-level', None)
