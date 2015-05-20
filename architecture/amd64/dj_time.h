@@ -1,5 +1,5 @@
 /*
- * time.h
+ * dj_time.h
  *
  * Copyright (c) 2015 Kevin Laeufer <kevin.laeufer@rwth-aachen.de>
  *
