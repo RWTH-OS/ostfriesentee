@@ -78,9 +78,13 @@ def ostfriesentee_library_method(env, name, source, **kwargs):
 		jar_dep = os.path.join(env['OFT_BUILDPATH'], 'lib', lib, lib + '.jar')
 		env_java.AppendUnique(JAVACLASSPATH=jar_dep)
 		Depends(jar_name, jar_dep)
-	# do not depend on system jars
-	env_java['JAVABOOTCLASSPATH'] = []
-	jar = env.JavaToJar(os.path.join(build_path, name + '.jar'), java_src)
+	# do not depend on system jars but on lib base, however: only if this is not libbase
+
+	if name != 'base':
+		env_java['JAVABOOTCLASSPATH'] = [os.path.join(env['OFT_BUILDPATH'], 'lib', 'base', 'base.jar')]
+	else:
+		env_java['JAVABOOTCLASSPATH'] = []
+	jar = env_java.JavaToJar(os.path.join(build_path, name + '.jar'), java_src)
 	target = [jar]
 
 	# make infusion
