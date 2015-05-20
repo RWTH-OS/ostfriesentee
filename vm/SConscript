@@ -26,12 +26,13 @@ base_lib = SConscript(['../lib/base/SConscript'], exports = 'env')
 base_lib_inc = os.path.join(env['OFT_BUILDPATH'], 'lib', 'base')
 
 # build c code
+buildpath = os.path.join(env['OFT_BUILDPATH'], 'vm')
 c_env = env.Clone()
-c_env.VariantDir(variant_dir='build/vm', src_dir='src')
+c_env.VariantDir(variant_dir=buildpath, src_dir='src')
 c_env.Append(CPPPATH = [os.path.abspath('c')])
 c_env.Append(CPPPATH = [base_lib_inc])
 
-vm = c_env.StaticLibrary('build/vm/vm', env.Glob('build/vm/*.c'))
+vm = c_env.StaticLibrary(buildpath + '/vm', env.Glob(buildpath + '/*.c'))
 
 
 Return('vm')
