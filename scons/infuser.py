@@ -29,7 +29,7 @@ it should be possible to load an app at run time, while
 a library needs to be compiled into the executable.
 """
 
-import os, re
+import os, re, operator
 from SCons.Script import SConscript, File, Depends
 import SCons.Util
 
@@ -43,12 +43,6 @@ def ostfriesentee_library_method(env, name, source, **kwargs):
 	    * _input_: *.java, *.c
 	    * _output_: *.a, *.di, *.dih, *.jar
 	"""
-	# check if name is valid and determine buildpath
-	if not re.match('[a-zA-Z][a-zA-Z0-9_]*', name):
-		env.Error("Invalid name `{}`. Please use C identifier conventions.".format(name))
-		exit(1)
-	build_path = os.path.join(env['OFT_BUILDPATH'], 'lib', name)
-
 	# parse variable keyword args
 	libs_dep = list(env['OFT_LIBS'])
 	if 'OFT_LIBS' in kwargs:
@@ -57,9 +51,28 @@ def ostfriesentee_library_method(env, name, source, **kwargs):
 	if 'is_app' in kwargs:
 		is_app = bool(kwargs['is_app'])
 
+	# check if name is valid and determine buildpath
+	if not re.match('[a-zA-Z][a-zA-Z0-9_]*', name):
+		env.Error("Invalid name `{}`. Please use C identifier conventions.".format(name))
+		exit(1)
+	if is_app:
+		build_path = os.path.join(env['OFT_BUILDPATH'], 'app', name)
+	else:
+		build_path = os.path.join(env['OFT_BUILDPATH'], 'lib', name)
+
+	# check if jar file and this library was already specified:
+	jar_name = os.path.join(build_path, name + '.jar')
+	target = [File(jar_name)]
+	target.append(File(os.path.join(build_path, name + '.di')))
+	if not is_app:
+		target.append(File(os.path.join(build_path, name + '.dih')))
+		target.append(File(os.path.join(build_path, 'lib' + name + '.a')))
+	already_specified = reduce(operator.and_, [t.has_builder() for t in target])
+	if already_specified:
+		return target
+
 	# build java sources
 	java_src = env.FindFiles(source, ".java")[0]
-	jar_name = os.path.join(build_path, name + '.jar')
 	env_java = env.Clone()
 	for lib in libs_dep:
 		jar_dep = os.path.join(env['OFT_BUILDPATH'], 'lib', lib, lib + '.jar')
