@@ -50,7 +50,7 @@ void javax_ostfriesentee_Ostfriesentee_void__print_java_lang_String()
 		return;
 	}
 
-	write(1, byteArray->data.bytes, byteArray->array.length);
+	write(1, byteArray->data.bytes, stringObject->count);
 }
 
 //int javax.darjeeling.Darjeeling.getMemFree()
