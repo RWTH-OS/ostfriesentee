@@ -35,7 +35,6 @@
 #define RUNSIZE 32
 
 //#define PACK_STRUCTS
-// #define ALIGN_16
 
 //Use 64-bit values to store time
 typedef int64_t dj_time_t;

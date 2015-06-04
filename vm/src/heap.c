@@ -128,10 +128,10 @@ void * dj_mem_alloc(uint16_t size, uint16_t id)
 {
 	heap_chunk *ret;
 
-	// if ALIGN_16 is defined (for MSP430 platform) make sure the size of the
+	// if ALIGN_32 is defined (for cortex-m0 platform) make sure the size of the
 	// new chunk is a multiple of 2
-#ifdef ALIGN_16
-	if (size&1) size++;
+#ifdef ALIGN_32
+	while (size&3) size++;
 #endif
 
 	// we need to accommodate for a chunk header
