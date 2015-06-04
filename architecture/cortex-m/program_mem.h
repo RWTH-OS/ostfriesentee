@@ -30,8 +30,27 @@ typedef unsigned long dj_di_pointer;
 #define DJ_DI_NOT_FOUND -2
 
 #define dj_di_getU8(pointer)  (*(uint8_t*) (pointer))
+
+
+// the cortex-m0 does not support unaligned access, thus we will have to
+// do bytewise reads
+// this is the same way this is handled on MSP430 (through ocapi/faraccess.s)
+#if defined __ARM_ARCH_6SM__ || defined __ARM_ARCH_6M__
+
+#define dj_di_getU16(pointer) ( ((*(uint8_t*) (pointer+1))<<8) | (*(uint8_t*) (pointer)) )
+#define dj_di_getU32(pointer) (\
+	((*(uint8_t*) (pointer+3))<<24) |\
+	((*(uint8_t*) (pointer+2))<<16) |\
+	((*(uint8_t*) (pointer+1))<<8) |\
+	(*(uint8_t*) (pointer)) )
+#define dj_di_getLocalId(pointer) ((dj_local_id){dj_di_getU8(pointer),dj_di_getU8(pointer+1)})
+
+#else
+
 #define dj_di_getU16(pointer) (*(uint16_t*)(pointer))
 #define dj_di_getU32(pointer) (*(uint32_t*)(pointer))
 #define dj_di_getLocalId(pointer) (*(dj_local_id*)(pointer))
 
 #endif
+
+#endif	// __program_mem_h
