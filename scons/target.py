@@ -42,16 +42,16 @@ def set_arch_common(env):
 		"-std=c11"
 	]
 
-def set_arch_amd64(env):
+def set_arch_amd64(env, arch):
 	env.Info("Building for amd64 arch.")
 	env.AppendUnique(CCFLAGS = ["-ggdb"])
 
-def set_arch_cortexm4f(env):
-	env.Info("Building for cortex-m4f arch.")
-
-	mcpu = "cortex-m4"
+def set_arch_cortexm(env, arch):
+	env.Info("Building for {} arch.".format(arch))
 
 	env['PROGSUFFIX'] = ".elf"
+
+	mcpu = arch
 
 	# use arm-none-eabi- toolchain
 	env['CC'] = "arm-none-eabi-gcc"
@@ -74,7 +74,8 @@ def set_arch_cortexm4f(env):
 		"-nostartfiles",
 		"-ffunction-sections",
 		"-fdata-sections",
-		"-fno-builtin"
+		"-fno-builtin",
+		"-fdiagnostics-color=auto",
 	])
 
 	env['LINKFLAGS'] = [
@@ -90,8 +91,9 @@ def set_arch_cortexm4f(env):
 
 def set_arch_method(env, arch):
 	available_arch = {
-		'amd64': set_arch_amd64,
-		'cortex-m4f': set_arch_cortexm4f
+		'amd64'     : ['amd64', set_arch_amd64],
+		'cortex-m4f': ['cortex-m', set_arch_cortexm],
+		'cortex-m0' : ['cortex-m', set_arch_cortexm]
 	}
 
 	arch = arch.lower()
@@ -100,7 +102,7 @@ def set_arch_method(env, arch):
 		exit(1)
 
 	# add include path with common pattern
-	inc = os.path.abspath(os.path.join(env['OFT_ROOT'], 'architecture', arch))
+	inc = os.path.abspath(os.path.join(env['OFT_ROOT'], 'architecture', available_arch[arch][0]))
 	if not os.path.isdir(inc):
 		env.Error("Include directory `{}` for arch `{}` does not exist!".format(inc, arch))
 		exit(1)
@@ -110,7 +112,7 @@ def set_arch_method(env, arch):
 	set_arch_common(env)
 
 	# load target specific settings
-	return available_arch[arch](env)
+	return available_arch[arch][1](env, arch)
 
 def generate(env):
 	env.AddMethod(set_arch_method, 'Architecture')
