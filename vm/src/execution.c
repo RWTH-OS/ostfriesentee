@@ -757,20 +757,51 @@ static inline int16_t getLocalShort(int index) {
  * @param value 32 bit integer value
  */
 static inline void setLocalInt(int index, int32_t value) {
-	if (index < nrIntegerParameters)
-		*(int32_t*) (integerParameters + index) = value;
-	else
-		*(int32_t*) (localIntegerVariables + index - nrIntegerParameters) = value;
+	DARJEELING_PRINTF("Int(%d) <= %d\n", index, value);
+
+
+//	if (index < nrIntegerParameters)
+//		*(int32_t*) (integerParameters + index) = value;
+//	else
+//		*(int32_t*) (localIntegerVariables + index - nrIntegerParameters) = value;
+
+//	setLocalShort(index, value >> 16);
+//	setLocalShort(index+1, value & 0xffff);
+
+	if (index < nrIntegerParameters) {
+		*(integerParameters + index - 0) = value >> 16;
+		*(integerParameters + index + 1) = value & 0xffff;
+	} else {
+		*(localIntegerVariables + index - 0 - nrIntegerParameters) = value >> 16;
+		*(localIntegerVariables + index + 1 - nrIntegerParameters) = value & 0xffff;
+	}
 }
 /**
  * Returns 32 bit integer local variable at index
  * @param index local variable slot number
  */
 static inline int32_t getLocalInt(int index) {
-	if (index < nrIntegerParameters)
-		return *(int32_t*) (integerParameters + index);
-	else
-		return *(int32_t*) (localIntegerVariables + index - nrIntegerParameters);
+
+//	if (index < nrIntegerParameters)
+//		return *(int32_t*) (integerParameters + index);
+//	else
+//		return *(int32_t*) (localIntegerVariables + index - nrIntegerParameters);
+
+//	volatile int32_t value = (getLocalShort(index) << 16) | getLocalShort(index + 1);
+//	return value;
+	volatile int32_t value;
+
+	if (index < nrIntegerParameters) {
+		value  = ((int32_t)*(integerParameters + index - 0)) << 16;
+		value |= ((int32_t)*(integerParameters + index + 1)) & 0xffff;
+	} else {
+		value  = ((int32_t)*(localIntegerVariables + index - 0 - nrIntegerParameters)) << 16;
+		value |= ((int32_t)*(localIntegerVariables + index + 1 - nrIntegerParameters)) & 0xffff;
+	}
+
+	DARJEELING_PRINTF("Int(%d) => %d\n", index, value);
+
+	return value;
 }
 
 /**
