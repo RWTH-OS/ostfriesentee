@@ -51,7 +51,10 @@ def set_arch_cortexm(env, arch):
 
 	env['PROGSUFFIX'] = ".elf"
 
-	mcpu = arch
+	if arch.endswith('f'):
+		mcpu = arch[:-1]
+	else:
+		mcpu = arch
 
 	# use arm-none-eabi- toolchain
 	env['CC'] = "arm-none-eabi-gcc"
