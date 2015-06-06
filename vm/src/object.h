@@ -38,9 +38,9 @@ static inline ref_t * dj_object_getReferences(dj_object * object)
 	uint16_t refOffset = dj_di_classDefinition_getOffsetOfFirstReference(dj_vm_getRuntimeClassDefinition(dj_exec_getVM(), dj_mem_getChunkId(object)));
 
 #ifdef ALIGN_32
-	while (refOffset&3) refOffset++;
+	if (refOffset&1) refOffset++;
 #endif
-	
+
 	return (ref_t*)((size_t)object + refOffset);
 }
 
