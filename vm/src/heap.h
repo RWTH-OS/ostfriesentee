@@ -68,9 +68,9 @@ enum
 // TODO the size:14 bit field notation is a GCC extension - refactor for compatibility with other compilers
 struct _heap_chunk
 {
-	uint8_t  color;
 	uint16_t size;
 	uint16_t shift;
+	uint8_t  color;
 	uint8_t id;
 //#ifdef ALIGN_32
 //	uint8_t PADDING[2];
