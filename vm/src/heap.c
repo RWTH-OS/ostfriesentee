@@ -129,7 +129,7 @@ void * dj_mem_alloc(uint16_t size, uint16_t id)
 	heap_chunk *ret;
 
 	// if ALIGN_32 is defined (for cortex-m0 platform) make sure the size of the
-	// new chunk is a multiple of 2
+	// new chunk is a multiple of 4
 #ifdef ALIGN_32
 	while (size&3) size++;
 #endif

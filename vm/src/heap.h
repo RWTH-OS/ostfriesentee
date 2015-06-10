@@ -65,16 +65,18 @@ enum
 	TCM_BLACK = 2,
 };
 
-// TODO the size:14 bit field notation is a GCC extension - refactor for compatibility with other compilers
+// in front of every memory location allocated on the heap, one
+// heap chunk struct will be place
+// thus the sizeof(heap_chunk) needs to be 32bit aligned on cortex-m systems
 struct _heap_chunk
 {
 	uint16_t size;
 	uint16_t shift;
 	uint8_t  color;
 	uint8_t id;
-//#ifdef ALIGN_32
-//	uint8_t PADDING[2];
-//#endif
+#ifdef ALIGN_32
+	uint8_t PADDING[2];
+#endif
 }
 #ifdef PACK_STRUCTS
 __attribute__ ((__packed__))

@@ -25,6 +25,7 @@
 #include "debug.h"
 #include "vmthread.h"
 
+#include "heap.h"
 #include "config.h"
 
 /* Everything  interesting is  in debug.h,  but  we need  a couple  of
@@ -51,6 +52,7 @@ void dj_print_type_sizes()
 	print_size("dj_infusion",  sizeof(dj_infusion));
 	print_size("dj_vm",        sizeof(dj_vm));
 	print_size("dj_named_native_handler", sizeof(dj_named_native_handler));
+	print_size("heap_chunk",   sizeof(heap_chunk));
 }
 
 
