@@ -151,6 +151,6 @@
 
 #endif// DARJEELING_DEBUG
 
-
+extern void dj_print_type_sizes();
 
 #endif // __debug_h

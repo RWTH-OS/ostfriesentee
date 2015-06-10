@@ -30,6 +30,30 @@
 /* Everything  interesting is  in debug.h,  but  we need  a couple  of
  * global variables.*/
 
+
+static inline void print_size(const char* type_name, size_t size)
+{
+	size_t alignment =
+		(size % 4 == 0)? 4 :
+		(size % 2 == 0)? 2 : 1;
+	DARJEELING_PRINTF("[%u-byte aligned] sizeof(%s)=%u bytes\n", alignment, type_name, size);
+}
+
+void dj_print_type_sizes()
+{
+	print_size("dj_local_id",  sizeof(dj_local_id));
+	print_size("dj_global_id", sizeof(dj_global_id));
+	print_size("dj_object",    sizeof(dj_object));
+	print_size("dj_thread",    sizeof(dj_thread));
+	print_size("dj_frame",     sizeof(dj_frame));
+	print_size("dj_monitor",   sizeof(dj_monitor));
+	print_size("dj_monitor_block", sizeof(dj_monitor_block));
+	print_size("dj_infusion",  sizeof(dj_infusion));
+	print_size("dj_vm",        sizeof(dj_vm));
+	print_size("dj_named_native_handler", sizeof(dj_named_native_handler));
+}
+
+
 // though, we only need them when actually doing some debugging
 #if defined(DARJEELING_DEBUG) || defined(DARJEELING_DEBUG_PERFILE)
 
