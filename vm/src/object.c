@@ -36,7 +36,7 @@ dj_object *dj_object_create(runtime_id_t type, int nr_refs, int non_ref_size)
 {
 	dj_object *ret;
 
-#ifdef ALIGN_16
+#ifdef ALIGN_32
 	if (non_ref_size&1) non_ref_size++;
 #endif
 
