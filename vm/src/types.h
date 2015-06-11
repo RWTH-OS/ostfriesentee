@@ -186,12 +186,6 @@ struct _dj_infusion
 	// for dynamic adress translation
 	runtime_id_t class_base;
 
-	// gc bookkeeping
-	uint8_t nr_static_refs;
-
-	// nr of referenced infusions
-	uint8_t nr_referenced_infusions;
-
 	// Infusions are stored as a linked list
 	dj_infusion * next;
 
@@ -204,6 +198,12 @@ struct _dj_infusion
 
 	// infusion mapping
 	dj_infusion ** referencedInfusions;
+
+	// gc bookkeeping
+	uint8_t nr_static_refs;
+
+	// nr of referenced infusions
+	uint8_t nr_referenced_infusions;
 #ifdef ALIGN_16
 	uint8_t PADDING;
 #endif
