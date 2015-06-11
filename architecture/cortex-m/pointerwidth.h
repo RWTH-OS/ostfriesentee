@@ -40,8 +40,26 @@ extern char * ref_t_base_address;
 // distinguish  between null references  (ref_t ==  0) and  "the first
 // object of the heap"
 
-static inline void* REF_TO_VOIDP(ref_t ref) {return (ref != nullref ? (void*)((uint16_t)ref + ref_t_base_address) : NULL ) ;}
-static inline ref_t VOIDP_TO_REF(void* ref) {return (ref != NULL ? (uint16_t)((char*)ref - ref_t_base_address) : nullref ) ;}
+static inline void* REF_TO_VOIDP(ref_t ref)
+{
+	void* vref = (ref != nullref ? (void*)((uint16_t)ref + ref_t_base_address) : NULL );
+
+	if(vref != NULL && vref < ref_t_base_address) {
+		__asm__("BKPT");
+		debug_printf("ERROR: vref=%x < %x=ref_t_base_address\n", (uint32_t)vref, (uint32_t)ref_t_base_address);
+	}
+
+	return vref;
+}
+static inline ref_t VOIDP_TO_REF(void* ref)
+{
+	if(ref != NULL && ref < ref_t_base_address) {
+		__asm__("BKPT");
+		debug_printf("ERROR: ref=%x < %x=ref_t_base_address\n", (uint32_t)ref, (uint32_t)ref_t_base_address);
+	}
+
+	return (ref != NULL ? (uint16_t)((char*)ref - ref_t_base_address) : nullref ) ;
+}
 
 #define REF_TO_UINT32(ref) ((uint32_t)ref)
 #define UINT32_TO_REF(ref) ((uint16_t)ref)

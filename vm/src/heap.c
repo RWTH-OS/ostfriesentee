@@ -475,6 +475,16 @@ void dj_mem_compact()
 	{
 		chunk = (heap_chunk*)loc;
 
+		if(chunk->id == CHUNKID_MONITOR_BLOCK) {
+			DARJEELING_PRINTF("0 ");
+			dj_monitor_block* block = (dj_monitor_block*)(loc + sizeof(heap_chunk));
+			DARJEELING_PRINTF("block->monitors[0].object: %x\n", (uint32_t)(block->monitors[0].object));
+			heap_chunk* object_chunk = (heap_chunk*)(block->monitors[0].object - sizeof(heap_chunk));
+			DARJEELING_PRINTF("block->monitors[0].object: heap_chunk size=%u\n", (uint32_t)(object_chunk->size));
+			DARJEELING_PRINTF("block->monitors[0].object: heap_chunk shift=%u\n", (uint32_t)(object_chunk->shift));
+			DARJEELING_PRINTF("block->monitors[0].object: heap_chunk id=%u\n", (uint32_t)(object_chunk->id));
+		}
+
 		if (chunk->id==CHUNKID_FREE) shift += chunk->size;
 
 		chunk->shift = shift;
@@ -488,6 +498,17 @@ void dj_mem_compact()
 	while (loc<left_pointer)
 	{
 		chunk = (heap_chunk*)loc;
+
+		if(chunk->id == CHUNKID_MONITOR_BLOCK) {
+			DARJEELING_PRINTF("1 ");
+			dj_monitor_block* block = (dj_monitor_block*)(loc + sizeof(heap_chunk));
+			DARJEELING_PRINTF("block->monitors[0].object: %x\n", (uint32_t)(block->monitors[0].object));
+			heap_chunk* object_chunk = (heap_chunk*)(block->monitors[0].object - sizeof(heap_chunk));
+			DARJEELING_PRINTF("block->monitors[0].object: heap_chunk size=%u\n", (uint32_t)(object_chunk->size));
+			DARJEELING_PRINTF("block->monitors[0].object: heap_chunk shift=%u\n", (uint32_t)(object_chunk->shift));
+			DARJEELING_PRINTF("block->monitors[0].object: heap_chunk id=%u\n", (uint32_t)(object_chunk->id));
+		}
+
 		dj_mem_updateManagedReference(vm, chunk);
 		loc += chunk->size;
 	}
@@ -498,7 +519,32 @@ void dj_mem_compact()
 	while (loc<left_pointer)
 	{
 		chunk = (heap_chunk*)loc;
+
+		if(chunk->id == CHUNKID_MONITOR_BLOCK) {
+			DARJEELING_PRINTF("2 ");
+			dj_monitor_block* block = (dj_monitor_block*)(loc + sizeof(heap_chunk));
+			DARJEELING_PRINTF("block->monitors[0].object: %x\n", (uint32_t)(block->monitors[0].object));
+			heap_chunk* object_chunk = (heap_chunk*)(block->monitors[0].object - sizeof(heap_chunk));
+			DARJEELING_PRINTF("block->monitors[0].object: heap_chunk size=%u\n", (uint32_t)(object_chunk->size));
+			DARJEELING_PRINTF("block->monitors[0].object: heap_chunk shift=%u\n", (uint32_t)(object_chunk->shift));
+			DARJEELING_PRINTF("block->monitors[0].object: heap_chunk id=%u\n", (uint32_t)(object_chunk->id));
+		}
+
 		dj_mem_updateSystemReference(vm, chunk);
+
+
+
+		if(chunk->id == CHUNKID_MONITOR_BLOCK) {
+			DARJEELING_PRINTF("3 ");
+			DARJEELING_PRINTF("dj_mem_updateSystemReference(vm, chunk)\n");
+			dj_monitor_block* block = (dj_monitor_block*)(loc + sizeof(heap_chunk));
+			DARJEELING_PRINTF("block->monitors[0].object: %x\n", (uint32_t)(block->monitors[0].object));
+			heap_chunk* object_chunk = (heap_chunk*)(block->monitors[0].object - sizeof(heap_chunk));
+			DARJEELING_PRINTF("block->monitors[0].object: heap_chunk size=%u\n", (uint32_t)(object_chunk->size));
+			DARJEELING_PRINTF("block->monitors[0].object: heap_chunk shift=%u\n", (uint32_t)(object_chunk->shift));
+			DARJEELING_PRINTF("block->monitors[0].object: heap_chunk id=%u\n", (uint32_t)(object_chunk->id));
+		}
+
 		loc += chunk->size;
 	}
 
@@ -521,8 +567,30 @@ void dj_mem_compact()
 		chunk = (heap_chunk*)loc;
 		chunkSize = chunk->size;
 
+		if(chunk->id == CHUNKID_MONITOR_BLOCK) {
+			DARJEELING_PRINTF("4 ");
+			dj_monitor_block* block = (dj_monitor_block*)(loc + sizeof(heap_chunk));
+			DARJEELING_PRINTF("block->monitors[0].object: %x\n", (uint32_t)(block->monitors[0].object));
+			heap_chunk* object_chunk = (heap_chunk*)(block->monitors[0].object - sizeof(heap_chunk));
+			DARJEELING_PRINTF("block->monitors[0].object: heap_chunk size=%u\n", (uint32_t)(object_chunk->size));
+			DARJEELING_PRINTF("block->monitors[0].object: heap_chunk shift=%u\n", (uint32_t)(object_chunk->shift));
+			DARJEELING_PRINTF("block->monitors[0].object: heap_chunk id=%u\n", (uint32_t)(object_chunk->id));
+		}
+
+		volatile uint16_t shift = chunk->shift;
+
 		if (chunk->id!=CHUNKID_FREE)
-			memmove(loc-chunk->shift, loc, chunkSize);
+			memmove(loc - shift, loc, chunkSize);
+
+		if(chunk->id == CHUNKID_MONITOR_BLOCK) {
+			DARJEELING_PRINTF("5 ");
+			dj_monitor_block* block = (dj_monitor_block*)(loc - shift + sizeof(heap_chunk));
+			DARJEELING_PRINTF("block->monitors[0].object: %x\n", (uint32_t)(block->monitors[0].object));
+			heap_chunk* object_chunk = (heap_chunk*)(block->monitors[0].object - sizeof(heap_chunk));
+			DARJEELING_PRINTF("block->monitors[0].object: heap_chunk size=%u\n", (uint32_t)(object_chunk->size));
+			DARJEELING_PRINTF("block->monitors[0].object: heap_chunk shift=%u\n", (uint32_t)(object_chunk->shift));
+			DARJEELING_PRINTF("block->monitors[0].object: heap_chunk id=%u\n", (uint32_t)(object_chunk->id));
+		}
 
 		loc += chunkSize;
 	}
