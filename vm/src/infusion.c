@@ -47,12 +47,13 @@ dj_infusion *dj_infusion_create(dj_di_pointer staticFieldInfo, int nrImportedInf
 	// allocate memory for the static fields.
 	// We put all the fields in one memory chunk,
 	// so here we calculate the total size we need
-	// TODO: initialize from big to small to guarantee correct alignment
-	staticFieldsSize = dj_di_staticFieldInfo_getNrRefs(staticFieldInfo) * sizeof(ref_t);
-	staticFieldsSize += dj_di_staticFieldInfo_getNrBytes(staticFieldInfo) * sizeof(uint8_t);
-	staticFieldsSize += dj_di_staticFieldInfo_getNrShorts(staticFieldInfo) * sizeof(uint16_t);
+	// it is IMPORTANT to put the fields that contain wider values first
+	// in order to guarantee correct alignment
+	staticFieldsSize  = dj_di_staticFieldInfo_getNrLongs(staticFieldInfo) * sizeof(uint64_t);
 	staticFieldsSize += dj_di_staticFieldInfo_getNrInts(staticFieldInfo) * sizeof(uint32_t);
-	staticFieldsSize += dj_di_staticFieldInfo_getNrLongs(staticFieldInfo) * sizeof(uint64_t);
+	staticFieldsSize += dj_di_staticFieldInfo_getNrRefs(staticFieldInfo) * sizeof(ref_t);
+	staticFieldsSize += dj_di_staticFieldInfo_getNrShorts(staticFieldInfo) * sizeof(uint16_t);
+	staticFieldsSize += dj_di_staticFieldInfo_getNrBytes(staticFieldInfo) * sizeof(uint8_t);
 
 #ifdef ALIGN_32
 	// make sure that the infusion list, that comes after the static field in
@@ -87,15 +88,15 @@ dj_infusion *dj_infusion_create(dj_di_pointer staticFieldInfo, int nrImportedInf
 	// allocate memory for the static fields and set the
 	// pointers
 	staticFields = (void*)((size_t)ret + sizeof(dj_infusion));
-	ret->staticReferenceFields = (ref_t*)staticFields;
-	staticFields += dj_di_staticFieldInfo_getNrRefs(staticFieldInfo) * sizeof(ref_t);
-	ret->staticByteFields = (uint8_t*)staticFields;
-	staticFields += dj_di_staticFieldInfo_getNrBytes(staticFieldInfo) * sizeof(uint8_t);
-	ret->staticShortFields = (uint16_t*)staticFields;
-	staticFields += dj_di_staticFieldInfo_getNrShorts(staticFieldInfo) * sizeof(uint16_t);
+	ret->staticLongFields = (uint64_t*)staticFields;
+	staticFields += dj_di_staticFieldInfo_getNrLongs(staticFieldInfo) * sizeof(uint64_t);
 	ret->staticIntFields = (uint32_t*)staticFields;
 	staticFields += dj_di_staticFieldInfo_getNrInts(staticFieldInfo) * sizeof(uint32_t);
-	ret->staticLongFields = (uint64_t*)staticFields;
+	ret->staticReferenceFields = (ref_t*)staticFields;
+	staticFields += dj_di_staticFieldInfo_getNrRefs(staticFieldInfo) * sizeof(ref_t);
+	ret->staticShortFields = (uint16_t*)staticFields;
+	staticFields += dj_di_staticFieldInfo_getNrShorts(staticFieldInfo) * sizeof(uint16_t);
+	ret->staticByteFields = (uint8_t*)staticFields;
 
 	// init static fields to 0
 	memset((void*)((size_t)ret + sizeof(dj_infusion)), 0, staticFieldsSize);
