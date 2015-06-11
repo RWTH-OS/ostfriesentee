@@ -52,6 +52,13 @@ public class Ostfriesentee
 	}
 
 	/**
+	 * Assertion method for unit testing purposes. Prints the test nr and wether the test failed or passed.
+	 * @param testNr test nr.
+	 * @param success whether the test failed or passed, true being a pass.
+	 */
+	public static native void assertTrue(int testNr, boolean success);
+
+	/**
 	 * @return the amount of free memory, in bytes.
 	 */
 	public static native int getMemFree();
