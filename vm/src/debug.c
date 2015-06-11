@@ -52,6 +52,10 @@ void dj_print_type_sizes()
 	print_size("dj_infusion",  sizeof(dj_infusion));
 	print_size("dj_vm",        sizeof(dj_vm));
 	print_size("dj_named_native_handler", sizeof(dj_named_native_handler));
+	print_size("dj_native_handler", sizeof(dj_native_handler));
+	print_size("dj_di_pointer", sizeof(dj_di_pointer));
+	print_size("runtime_id_t", sizeof(runtime_id_t));
+	print_size("ref_t",        sizeof(ref_t));
 	print_size("heap_chunk",   sizeof(heap_chunk));
 }
 
