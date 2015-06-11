@@ -47,11 +47,19 @@ dj_infusion *dj_infusion_create(dj_di_pointer staticFieldInfo, int nrImportedInf
 	// allocate memory for the static fields.
 	// We put all the fields in one memory chunk,
 	// so here we calculate the total size we need
+	// TODO: initialize from big to small to guarantee correct alignment
 	staticFieldsSize = dj_di_staticFieldInfo_getNrRefs(staticFieldInfo) * sizeof(ref_t);
 	staticFieldsSize += dj_di_staticFieldInfo_getNrBytes(staticFieldInfo) * sizeof(uint8_t);
 	staticFieldsSize += dj_di_staticFieldInfo_getNrShorts(staticFieldInfo) * sizeof(uint16_t);
 	staticFieldsSize += dj_di_staticFieldInfo_getNrInts(staticFieldInfo) * sizeof(uint32_t);
 	staticFieldsSize += dj_di_staticFieldInfo_getNrLongs(staticFieldInfo) * sizeof(uint64_t);
+
+#ifdef ALIGN_32
+	// make sure that the infusion list, that comes after the static field in
+	// memory is 32bit aligned
+	while (staticFieldsSize&3) staticFieldsSize++;
+#endif
+
 
 	// allocate infusion struct, plus the memory needed for the static fields in
 	// one block to save on heap complexity (less chunks on the heap)
