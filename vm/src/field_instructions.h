@@ -132,7 +132,7 @@ static inline void GETFIELD_S()
 		dj_exec_createAndThrow(BASE_CDEF_javax_darjeeling_vm_ClassUnloadedException);
 	else {
 		uint16_t index = (fetch()<<8) + fetch();
-#ifdef ALIGN_16
+#if defined(ALIGN_16) || defined(ALIGN_32)
 		uint8_t* p = ((uint8_t*)((size_t)object+index));
 		pushShort( (uint16_t)p[1]<<8 | p[0] );
 #else
@@ -152,7 +152,7 @@ static inline void GETFIELD_I()
 		dj_exec_createAndThrow(BASE_CDEF_javax_darjeeling_vm_ClassUnloadedException);
 	else {
 		uint16_t index = (fetch()<<8) + fetch();
-#ifdef ALIGN_16
+#if defined(ALIGN_16) || defined(ALIGN_32)
 		uint8_t* p = ((uint8_t*)((size_t)object+index));
 		pushInt( (uint32_t)p[3]<<24 | (uint32_t)p[2]<<16 | (uint32_t)p[1]<<8 | p[0] );
 #else
@@ -172,7 +172,7 @@ static inline void GETFIELD_L()
 		dj_exec_createAndThrow(BASE_CDEF_javax_darjeeling_vm_ClassUnloadedException);
 	else {
 		uint16_t index = (fetch()<<8) + fetch();
-#ifdef ALIGN_16
+#if defined(ALIGN_16) || defined(ALIGN_32)
 		uint8_t* p = ((uint8_t*)((size_t)object+index));
 		pushLong( (uint64_t)p[7]<<56 | (uint64_t)p[6]<<48 | (uint64_t)p[5]<<40 | (uint64_t)p[4]<<32|
 		          (uint64_t)p[3]<<24 | (uint64_t)p[2]<<16 | (uint64_t)p[1]<<8  | p[0] );
@@ -233,7 +233,7 @@ static inline void PUTFIELD_S()
 	else
 	{
 		uint16_t index = (fetch()<<8) + fetch();
-#ifdef ALIGN_16
+#if defined(ALIGN_16) || defined(ALIGN_32)
 		uint8_t* p = ((uint8_t*)((size_t)object+index));
                 p[1]=value>>8;p[0]=value;
 #else
@@ -254,7 +254,7 @@ static inline void PUTFIELD_I()
 	else
 	{
 		uint16_t index = (fetch()<<8) + fetch();
-#ifdef ALIGN_16
+#if defined(ALIGN_16) || defined(ALIGN_32)
 		uint8_t* p = ((uint8_t*)((size_t)object+index));
                 p[3]=value>>24;p[2]=value>>16;
                 p[1]=value>>8; p[0]=value;
@@ -277,7 +277,7 @@ static inline void PUTFIELD_L()
 	else
 	{
 		uint16_t index = (fetch()<<8) + fetch();
-#ifdef ALIGN_16
+#if defined(ALIGN_16) || defined(ALIGN_32)
 		uint8_t* p = ((uint8_t*)((size_t)object+index));
                 p[7]=value>>56;p[6]=value>>48;
                 p[5]=value>>40;p[4]=value>>32;
