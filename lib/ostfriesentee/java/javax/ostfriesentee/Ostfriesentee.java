@@ -58,6 +58,8 @@ public class Ostfriesentee
 	 */
 	public static native void assertTrue(int testNr, boolean success);
 
+	public static native void printTestResults();
+
 	/**
 	 * @return the amount of free memory, in bytes.
 	 */

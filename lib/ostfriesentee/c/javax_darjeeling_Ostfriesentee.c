@@ -53,16 +53,28 @@ void javax_ostfriesentee_Ostfriesentee_void__print_java_lang_String()
 	write(1, byteArray->data.bytes, stringObject->count);
 }
 
+static int tests_total  = 0;
+static int tests_passed = 0;
+
 // void javax.ostfriesentee.Ostfriesentee.assertTrue(int, boolean)
 void javax_ostfriesentee_Ostfriesentee_void_assertTrue_int_boolean()
 {
 	// pop argument from the stack
 	int32_t value = dj_exec_stackPopShort();
 	int32_t id = dj_exec_stackPopInt();
-	if (value==0)
+	tests_total++;
+	if (value==0) {
 		debug_printf("%c[31mASSERT[%3d] FAILED%c[0m\n", 0x1b, (int)id, 0x1b);
-	else
+	} else {
+		tests_passed++;
 		debug_printf("%c[32mASSERT[%3d] PASSED%c[0m\n", 0x1b, (int)id, 0x1b);
+	}
+}
+
+// void javax.ostfriesentee.Ostfriesentee.printTestResults()
+void javax_ostfriesentee_Ostfriesentee_void_printTestResults()
+{
+	debug_printf("\n%d/%d tests passed\n", tests_passed, tests_total);
 }
 
 //int javax.darjeeling.Darjeeling.getMemFree()

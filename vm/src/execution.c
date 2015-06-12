@@ -522,16 +522,30 @@ static inline void pushShort(int16_t value) {
  * Pushes an int (32 bit) onto the runtime stack
  */
 static inline void pushInt(int32_t value) {
+#ifdef ALIGN_32
+	// int stack is only 16bit aligned
+	pushShort(((value) >>  0) & 0xffff);
+	pushShort(((value) >> 16) & 0xffff);
+#else
 	*((int32_t*) intStack) = value;
 	intStack += 2;
+#endif
 }
 
 /**
  * Pushes a long (64 bit) onto the runtime stack
  */
 static inline void pushLong(int64_t value) {
+#ifdef ALIGN_32
+	// int stack is only 16bit aligned
+	pushShort((((uint64_t)value) >>  0) & 0xffff);
+	pushShort((((uint64_t)value) >> 16) & 0xffff);
+	pushShort((((uint64_t)value) >> 32) & 0xffff);
+	pushShort((((uint64_t)value) >> 48) & 0xffff);
+#else
 	*((int64_t*) intStack) = value;
 	intStack += 4;
+#endif
 }
 
 /**
@@ -555,16 +569,40 @@ static inline int16_t popShort()
  * Pops an int (32 bit) from the runtime stack
  */
 static inline int32_t popInt() {
+#ifdef ALIGN_32
+	// int stack is only 16bit aligned
+	// masking with 0xffff is needed, because of sign extention
+	// one might want to try to change the type of intStack to unsigned in
+	// order to prevent this
+	int32_t value =
+		((uint32_t)popShort() & 0xffff) << 16 |
+		((uint32_t)popShort() & 0xffff) <<  0;
+	return value;
+#else
 	intStack -= 2;
 	return *(int32_t*) intStack;
+#endif
 }
 
 /**
  * Pops a long (64 bit) from the runtime stack
  */
 static inline int64_t popLong() {
+#ifdef ALIGN_32
+	// int stack is only 16bit aligned
+	// masking with 0xffff is needed, because of sign extention
+	// one might want to try to change the type of intStack to unsigned in
+	// order to prevent this
+	int64_t value =
+		(((uint64_t)popShort() & 0xffff) << 48) |
+		(((uint64_t)popShort() & 0xffff) << 32) |
+		(((uint64_t)popShort() & 0xffff) << 16) |
+		(((uint64_t)popShort() & 0xffff) <<  0);
+	return value;
+#else
 	intStack -= 4;
 	return *(int64_t*) intStack;
+#endif
 }
 
 /**
