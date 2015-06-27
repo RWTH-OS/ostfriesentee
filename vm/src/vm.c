@@ -939,8 +939,10 @@ dj_monitor * dj_vm_getMonitor(dj_vm *vm, dj_object * object)
 	int i;
 	dj_monitor *monitor, *ret = NULL;
 	dj_monitor_block *block, *newBlock;
-	dj_object * obj = object;
 
+	// create a safe pointer that might be updated by the
+	// carbage collector when allocating a new monitor block
+	dj_object * obj = object;
 	dj_mem_addSafePointer((void**)&obj);
 
 	// search for the monitor
@@ -997,7 +999,7 @@ dj_monitor * dj_vm_getMonitor(dj_vm *vm, dj_object * object)
 		// reset the monitor to count=0, waiting_threads=0
 		ret->count = 0;
 		ret->waiting_threads = 0;
-		ret->object = object;
+		ret->object = obj;
 		ret->owner = NULL;
 		vm->numMonitors++;
 		block->count++;
