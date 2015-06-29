@@ -842,20 +842,50 @@ static inline int32_t getLocalInt(int index) {
  * @param value 64-bit long value
  */
 static inline void setLocalLong(int index, int64_t value) {
+#ifdef ALIGN_32
+	if (index < nrIntegerParameters) {
+		*(integerParameters + index - 0) = (value >>  0) & 0xffff;
+		*(integerParameters + index + 1) = (value >> 16) & 0xffff;
+		*(integerParameters + index + 2) = (value >> 32) & 0xffff;
+		*(integerParameters + index + 3) = (value >> 48) & 0xffff;
+	} else {
+		*(localIntegerVariables + index - 0 - nrIntegerParameters) = (value >>  0) & 0xffff;
+		*(localIntegerVariables + index + 1 - nrIntegerParameters) = (value >> 16) & 0xffff;
+		*(localIntegerVariables + index + 2 - nrIntegerParameters) = (value >> 32) & 0xffff;
+		*(localIntegerVariables + index + 3 - nrIntegerParameters) = (value >> 48) & 0xffff;
+	}
+#else
 	if (index < nrIntegerParameters)
 		*(int64_t*) (integerParameters + index) = value;
 	else
 		*(int64_t*) (localIntegerVariables + index - nrIntegerParameters) = value;
+#endif
 }
 /**
  * Returns 64-bit long local variable at index
  * @param index local variable slot number
  */
 static inline int64_t getLocalLong(int index) {
+#ifdef ALIGN_32
+	int64_t value;
+	if (index < nrIntegerParameters) {
+		value  = (((int64_t)*(integerParameters + index - 0)) <<  0) & (0xffff <<  0);
+		value |= (((int64_t)*(integerParameters + index + 1)) << 16) & (0xffff << 16);
+		value |= (((int64_t)*(integerParameters + index + 2)) << 32) & (0xffff << 32);
+		value |= (((int64_t)*(integerParameters + index + 3)) << 48) & (0xffff << 48);
+	} else {
+		value  = (((int64_t)*(localIntegerVariables + index - 0 - nrIntegerParameters)) <<  0) & (0xffff <<  0);
+		value |= (((int64_t)*(localIntegerVariables + index + 1 - nrIntegerParameters)) << 16) & (0xffff << 16);
+		value |= (((int64_t)*(localIntegerVariables + index + 2 - nrIntegerParameters)) << 32) & (0xffff << 32);
+		value |= (((int64_t)*(localIntegerVariables + index + 3 - nrIntegerParameters)) << 48) & (0xffff << 48);
+	}
+	return value;
+#else
 	if (index < nrIntegerParameters)
 		return *(int64_t*) (integerParameters + index);
 	else
 		return *(int64_t*) (localIntegerVariables + index - nrIntegerParameters);
+#endif
 }
 
 /**
