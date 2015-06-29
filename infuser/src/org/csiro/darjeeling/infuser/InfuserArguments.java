@@ -77,6 +77,9 @@ public class InfuserArguments
 	@Parameter(names = { "-c", "--c-code-output" }, description = "The c code output file.")
 	private String cCodeOutputFile;
 
+	@Parameter(names = { "-r", "--rust-output" }, description = "The rust binding file.")
+	private String rustOutputFile;
+
 	// Internally used debug output file.
 	private String debugOutputFile;
 
@@ -250,6 +253,10 @@ public class InfuserArguments
 	public String getDebugOutputFile()
 	{
 		return debugOutputFile;
+	}
+
+	public String getRustOutputFile() {
+		return rustOutputFile;
 	}
 
 }

@@ -48,6 +48,7 @@ import org.csiro.darjeeling.infuser.outputphase.CHeaderVisitor;
 import org.csiro.darjeeling.infuser.outputphase.DIWriterVisitor;
 import org.csiro.darjeeling.infuser.outputphase.DebugVisitor;
 import org.csiro.darjeeling.infuser.outputphase.HeaderVisitor;
+import org.csiro.darjeeling.infuser.outputphase.RustBindingVisitor;
 import org.csiro.darjeeling.infuser.processingphase.ClassInitialiserResolutionVisitor;
 import org.csiro.darjeeling.infuser.processingphase.CodeBlockVisitor;
 import org.csiro.darjeeling.infuser.processingphase.FieldMapVisitor;
@@ -182,7 +183,7 @@ public class Infuser
 	}
 
 	/**
-	 * Creates an infusion native definitions file (.h)
+	 * Creates an infusion native definitions file (.c)
 	 * @param infusion the Infusion to output
 	 * @throws InfuserException
 	 */
@@ -203,6 +204,32 @@ public class Infuser
 			} catch (IOException ex)
 			{
 				throw new InfuserException("IO Error writing infusion file", ex);
+			}
+		}
+	}
+
+	/**
+	 * Creates a rust binding to the infusion (.rs)
+	 * @param infusion the Infusion to output
+	 * @throws InfuserException
+	 */
+	private void createRustFile(InternalInfusion infusion) throws InfuserException
+	{
+		// create native definitions file
+		String outFile = infuserArguments.getRustOutputFile();
+		if (outFile != null)
+		{
+			Logging.instance.println("Writing rust binding: " + outFile);
+			try
+			{
+				FileOutputStream fout = new FileOutputStream(outFile);
+				PrintWriter writer = new PrintWriter(fout);
+				infusion.accept(new RustBindingVisitor(writer));
+				writer.close();
+				fout.close();
+			} catch (IOException ex)
+			{
+				throw new InfuserException("IO Error writing rust binding file", ex);
 			}
 		}
 	}
@@ -298,8 +325,9 @@ public class Infuser
 	public void process() throws InfuserException, IOException
 	{
 		// check if the -name option was given
-		if (infuserArguments.getInfusionName()==null)
+		if (infuserArguments.getInfusionName()==null) {
 			throw new InfuserException("error: infusion name not provided");
+		}
 
 		// Logging.instance.addVerbose(VerboseOutputType.ARGUMENTS_PARSING);
 
@@ -323,6 +351,8 @@ public class Infuser
 
 		// create native file
 		createNativeFile(infusion);
+
+		createRustFile(infusion);
 
 		// debug
 		createDebugFile(infusion);

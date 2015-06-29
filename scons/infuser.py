@@ -142,7 +142,7 @@ def ostfriesentee_application_method(env, name, source, **kwargs):
 
 
 def infusion_action_generator(target, source, env, for_signature):
-	flags = {'.dih': '-h', '.di': '-o', '.h': '-d', '.c': '-c'}
+	flags = {'.dih': '-h', '.di': '-o', '.h': '-d', '.c': '-c', '.rs': '-r'}
 	name = os.path.basename(os.path.dirname(str(target[0])))
 
 	action_str = "java -jar $INFUSER_JAR"
@@ -181,7 +181,7 @@ def infusion_emitter(target, source, env):
 			exit(1)
 
 	# create file targets
-	output_templates = ['{}.dih', '{}.di', 'jlib_{}.c', 'jlib_{}.h']
+	output_templates = ['{}.dih', '{}.di', 'jlib_{}.c', 'jlib_{}.h', 'jlib_{}.rs']
 	target = []
 	for templ in output_templates:
 		path = os.path.join(infusion_path, templ.format(infusion_name))
