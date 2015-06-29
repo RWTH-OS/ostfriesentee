@@ -30,6 +30,7 @@
 // standard posix write, only needs to accept fildes=1 for stdout
 ssize_t write(int fildes, const void *buf, size_t nbyte);
 
+// void javax.ostfriesentee.Ostfriesentee._print(java.lang.String)
 void javax_ostfriesentee_Ostfriesentee_void__print_java_lang_String()
 {
 	// Pop string object from the stack.
@@ -51,6 +52,30 @@ void javax_ostfriesentee_Ostfriesentee_void__print_java_lang_String()
 	}
 
 	write(1, byteArray->data.bytes, stringObject->count);
+}
+
+// void javax.ostfriesentee.Ostfriesentee._print(byte[])
+void javax_ostfriesentee_Ostfriesentee_void__print_byte__()
+{
+	// Get byte array
+	dj_int_array * byteArray = (dj_int_array*)REF_TO_VOIDP(dj_exec_stackPopRef());
+
+	if (byteArray == NULL)
+	{
+		dj_exec_createAndThrow(BASE_CDEF_java_lang_NullPointerException);
+		return;
+	}
+
+	write(1, byteArray->data.bytes, byteArray->array.length);
+}
+
+// void javax.ostfriesentee.Ostfriesentee._print(int)
+void javax_ostfriesentee_Ostfriesentee_void__print_int()
+{
+	static uint8_t buf[1];
+
+	buf[0] = (uint8_t)dj_exec_stackPopInt();
+	write(1, buf, 1);
 }
 
 static int tests_total  = 0;

@@ -40,15 +40,35 @@ public class Ostfriesentee
 	}
 
 	private static native void _print(String string);
+	private static native void _print(byte[] b);
+	private static native void _print(int b);
 
 	/**
-	 * Prints a String to the default console. 
+	 * Prints a String to the default console.
 	 * @param str string to print
 	 */
 	public static void print(String str)
 	{
 		if (str==null) throw new NullPointerException();
 		_print(str);
+	}
+
+	/**
+	 * Prints bytes to the default console.
+	 * @param b bytes to print
+	 */
+	public static void print(byte[] b)
+	{
+		if (b==null) throw new NullPointerException();
+		_print(b);
+	}
+
+	/**
+	 * Prints bytesto the default console.
+	 */
+	public static void print(int b)
+	{
+		_print(b);
 	}
 
 	/**

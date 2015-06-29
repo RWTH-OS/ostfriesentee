@@ -28,15 +28,19 @@ public class PrintStream extends OutputStream {
 	}
 
 	public void print(String string) {
-		write(string.getBytes());
+		if (underlying != null) {
+			underlying.write(string.getBytes());
+		}
 	}
 
 	public void println(String string) {
-		write(string.getBytes());
-		write((int)'\n');
+		if (underlying != null) {
+			underlying.write(string.getBytes());
+			underlying.write((int)'\n');
+		}
 	}
 
 	public void println() {
 		write((int)'\n');
-	}	
+	}
 }

@@ -33,11 +33,11 @@ public class ConsoleOutputStream extends OutputStream {
 	 * @see java.io.OutputStream#write(int)
 	 */
 	public void write(int b) {
-		Ostfriesentee.print(""+(char)b);
+		Ostfriesentee.print(b);
 	}
 
 	public void write(byte[] b)
 	{
-		Ostfriesentee.print(new String(b));
+		Ostfriesentee.print(b);
 	}
 }
