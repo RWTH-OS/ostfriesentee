@@ -56,6 +56,24 @@ def run_program(env, program, parameters=""):
 	""" helper method to run an executable as pseudo target """
 	return env.Command('run_program', program, '{} {}'.format(program[0].abspath, parameters))
 
+def format_size(size):
+	""" takes size as integer and returns a human readable string """
+	return "{} bytes".format(size)
+
+def show_size_action(env, source, target):
+	if not isinstance(source, list):
+		source = [source]
+	data = [(str(ff), format_size(ff.get_size())) for ff in source]
+	max_size_chars = max([(len(dd[0]) + len(dd[1])) for dd in data])
+	for dd in data:
+		padding = max_size_chars - (len(dd[0]) + len(dd[1]))
+		print(dd[0] + ": " + (" " * padding) + dd[1])
+
+def show_size(env, source):
+	""" helper method to show the size of a number of files """
+	aa = env.Action(show_size_action, cmdstr="$OFT_SHOW_SIZE_COMSTR")
+	return env.AlwaysBuild(env.Alias('__show_size__', source, aa))
+
 def generate(env):
 	# initialize environment globals that other tools rely on
 	env['OFT_SCONS_TOOLS'] = os.path.dirname(os.path.abspath(__file__))
@@ -87,6 +105,8 @@ def generate(env):
 
 	# helper functions
 	env.AddMethod(run_program, 'Run')
+	env['OFT_SHOW_SIZE_COMSTR'] = "Size:"
+	env.AddMethod(show_size, 'ShowSize')
 
 	# determine build directory
 	# this is inspired by the code in `scons/site_tools/xpcc.py`
