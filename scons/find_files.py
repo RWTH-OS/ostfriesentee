@@ -37,9 +37,10 @@ class FileFinder(object):
 
 	def find(self, files):
 		# if files is a list, call the find function on every element
-		if isinstance(files, list):
+		if isinstance(files, list) or isinstance(files, SCons.Node.NodeList):
 			for ff in files:
 				self.find(ff)
+			return
 		# if it's not a list, we can calculate an absolute path
 		ff = files
 		path = os.path.abspath(str(files))
