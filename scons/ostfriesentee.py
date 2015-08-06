@@ -71,8 +71,9 @@ def show_size_action(env, source, target):
 
 def show_size(env, source):
 	""" helper method to show the size of a number of files """
+	pseudo_target = '__show_size__{}__'.format(hash("".join(str(s) for s in source)))
 	aa = env.Action(show_size_action, cmdstr="$OFT_SHOW_SIZE_COMSTR")
-	return env.AlwaysBuild(env.Alias('__show_size__', source, aa))
+	return env.AlwaysBuild(env.Alias(pseudo_target, source, aa))
 
 def generate(env):
 	# initialize environment globals that other tools rely on
