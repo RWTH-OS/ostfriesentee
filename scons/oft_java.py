@@ -103,6 +103,9 @@ def java_to_jar_emitter(target, source, env):
 	""" this emitter searches through directories for class files """
 	java_src =  env.FindFiles(source, '.java')[0]
 	manifest = [str(s) for s in source if os.path.basename(str(s)) == 'MANIFEST.MF']
+	# make sure .jar files exist
+	for jar in env['JAVACLASSPATH']:
+		env.Depends(target, jar)
 	return target, java_src + manifest
 
 def java_to_jar_string(target, source, env):
