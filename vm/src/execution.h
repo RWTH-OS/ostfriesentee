@@ -29,7 +29,7 @@
 #include "object.h"
 
 
-int dj_exec_run();
+int dj_exec_run(int nrOpcodes);
 void dj_exec_breakExecution();
 void dj_exec_activate_thread(dj_thread *thread);
 void dj_exec_deactivateThread(dj_thread *thread);
