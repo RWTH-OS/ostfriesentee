@@ -24,7 +24,7 @@
 
 #include <stdint.h>
 
-typedef unsigned long dj_di_pointer;
+typedef size_t dj_di_pointer;
 
 #define DJ_DI_NOT_SET -1
 #define DJ_DI_NOT_FOUND -2
