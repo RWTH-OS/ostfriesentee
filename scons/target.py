@@ -42,6 +42,10 @@ def set_arch_common(env):
 		"-std=c11"
 	]
 
+	env['CXXFLAGS'] = [
+		"-std=c++11"
+	]
+
 def set_arch_amd64(env, arch):
 	env.Info("Building for amd64 arch.")
 	env.AppendUnique(CCFLAGS = ["-ggdb"])
