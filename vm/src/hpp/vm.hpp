@@ -1,6 +1,8 @@
 #ifndef VM_HPP
 #define VM_HPP
 
+#include "infusion.hpp"
+
 namespace ostfriesentee {
 
 class Vm {
@@ -47,7 +49,12 @@ public:
 					dj_exec_run(RUNSIZE);
 		}
 	}
+
+	Infusion firstInfusion() {
+		Infusion inf(this->vm->infusions);
+		return inf;
+	}
 };
 
-}
+} // namespace ostfriesentee
 #endif // VM_HPP
