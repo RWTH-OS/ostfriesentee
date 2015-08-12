@@ -30,6 +30,79 @@ public:
 
 };
 
+class ClassDefinition {
+	dj_di_pointer classDef;
+
+public:
+	ClassDefinition(const dj_di_pointer classDef) {
+		this->classDef = classDef;
+	}
+
+	uint8_t getNumberOfReferences() const {
+		return dj_di_classDefinition_getNrRefs(this->classDef);
+	}
+
+	// TODO: resolve id
+	dj_local_id getSuperClass() const {
+		return dj_di_classDefinition_getSuperClass(this->classDef);
+	}
+
+	uint8_t getConstantInitMethodId() const {
+		return dj_di_classDefinition_getCLInit(this->classDef);
+	}
+
+	dj_local_id getNameId() const {
+		return dj_di_classDefinition_getClassName(this->classDef);
+	}
+
+	uint8_t getNumberOfInterfaces() const {
+		return dj_di_classDefinition_getNrInterfaces(this->classDef);
+	}
+
+	// TODO: resolve id
+	// index must be smaller than value returned by getNumberOfInterfaces()
+	dj_local_id getInterface(uint8_t index) const {
+		return dj_di_classDefinition_getInterface(this->classDef, index);
+	}
+};
+
+class ClassList : public List {
+public:
+	ClassList(const dj_di_pointer list) : List(list) {}
+
+	// index must be smaller than value returned by getSize()
+	const ClassDefinition getElement(const uint8_t index) const {
+		dj_di_pointer element = List::getElement(index);
+		ClassDefinition def(element);
+		return def;
+	}
+};
+
+class StringTable {
+	dj_di_pointer table;
+
+public:
+	StringTable(dj_di_pointer table) {
+		this->table = table;
+	}
+
+	uint16_t getSize() {
+		return dj_di_stringtable_getNrElements(this->table);
+	}
+
+	// index must be smaller than value returned by getSize()
+	uint16_t getStringLength(const uint16_t index) {
+		return dj_di_stringtable_getElementLength(this->table, index);
+	}
+
+	// index must be smaller than value returned by getSize()
+	const char* getStringData(const uint16_t index) {
+		dj_di_pointer bytes = dj_di_stringtable_getElementBytes(this->table, index);
+		return reinterpret_cast<const char*>(bytes);
+	}
+};
+
+
 class Infusion {
 	dj_infusion* inf;
 
@@ -67,15 +140,19 @@ public:
 	}
 
 	//------------------------------------------------------------------------
-
-	const List getClassList() {
-		List classList(this->inf->classList);
+	const ClassList getClassList() {
+		ClassList classList(this->inf->classList);
 		return classList;
 	}
 
 	const List getMethodImplementationList() {
 		List methodImplementationList(this->inf->methodImplementationList);
 		return methodImplementationList;
+	}
+
+	const StringTable getStringTable() {
+		StringTable strings(this->inf->stringTable);
+		return strings;
 	}
 };
 
