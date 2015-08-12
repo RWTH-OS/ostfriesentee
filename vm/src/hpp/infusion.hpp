@@ -3,6 +3,16 @@
 
 namespace ostfriesentee {
 
+/// ostfriesentee strings are not null terminated, but
+/// carry a size
+struct String {
+	char* data;
+	uint16_t length;
+
+	String(char* data, uint16_t length) : data(data), length(length) {}
+	String(const dj_di_pointer data, uint16_t length) : 
+		data(reinterpret_cast<char* >(data)), length(length) {}
+};
 
 class List {
 	dj_di_pointer list;
@@ -91,14 +101,11 @@ public:
 	}
 
 	// index must be smaller than value returned by getSize()
-	uint16_t getStringLength(const uint16_t index) {
-		return dj_di_stringtable_getElementLength(this->table, index);
-	}
-
-	// index must be smaller than value returned by getSize()
-	const char* getStringData(const uint16_t index) {
-		dj_di_pointer bytes = dj_di_stringtable_getElementBytes(this->table, index);
-		return reinterpret_cast<const char*>(bytes);
+	const String getString(const uint16_t index) {
+		uint16_t length = dj_di_stringtable_getElementLength(this->table, index);
+		const dj_di_pointer data = dj_di_stringtable_getElementBytes(this->table, index);
+		const String str(data, length);
+		return str;
 	}
 };
 
