@@ -21,7 +21,7 @@ import os
 
 env = Environment(toolpath = [os.path.join('..', '..', 'scons')], tools = ['default', 'ostfriesentee'])
 
-env.Architecture("amd64")
+env.Architecture("cortex-m0")
 infusion = SConscript(['SConscript'], exports = 'env')
 
-env.Default(infusion)
+env.Default(env.ShowSize(infusion))
