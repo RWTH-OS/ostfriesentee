@@ -60,6 +60,8 @@ dj_vm *dj_exec_getVM();
 
 void dj_exec_updatePointers();
 
+void dj_exec_callMethod(dj_global_id methodImplId, int virtualCall);
+
 #ifdef DARJEELING_DEBUG_FRAME
 void dj_exec_dumpFrame( dj_frame *frame );
 void dj_exec_dumpFrameTrace( dj_frame *frame );

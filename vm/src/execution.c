@@ -1058,6 +1058,11 @@ static inline void callMethod(dj_global_id methodImplId, int virtualCall)
 
 }
 
+// public version of callMethod
+void dj_exec_callMethod(dj_global_id methodImplId, int virtualCall) {
+	callMethod(methodImplId, virtualCall);
+}
+
 /**
  * Returns from a method. The current execution frame is popped off the thread's frame stack. If there are no other
  * frames to execute, the thread ends. Otherwise control is switched to the underlying caller frame.
