@@ -688,11 +688,13 @@ void dj_vm_notify(dj_vm *vm, dj_object *object, bool all)
  */
 void dj_vm_checkFinishedThreads(dj_vm *vm)
 {
-	dj_thread *thread = vm->threads;
-	dj_thread *next;
+	if(vm->threads == NULL) return;
+
+	// the first thread will be kept around
+	dj_thread *thread = vm->threads->next;
 
 	while (thread != NULL) {
-		next = thread->next;
+		dj_thread* next = thread->next;
 		if (thread->status == THREADSTATUS_FINISHED)
 		{
 			if (vm->currentThread == thread)
