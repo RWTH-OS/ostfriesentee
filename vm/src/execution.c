@@ -1058,9 +1058,28 @@ static inline void callMethod(dj_global_id methodImplId, int virtualCall)
 
 }
 
-// public version of callMethod
-void dj_exec_callMethod(dj_global_id methodImplId, int virtualCall) {
-	callMethod(methodImplId, virtualCall);
+/// this calls a java method from native code
+int dj_exec_callMethodFromNative(dj_global_id methodImplId, dj_thread* thread,
+		ref_t* referenceParams, int16_t* integerParams) {
+	// create the method frame
+	dj_frame* frame = dj_frame_create(methodImplId);
+	if(frame == NULL) return 0;
+
+	// we assume, that the thread does not have a frame yet
+	thread->frameStack = frame;
+	thread->status = THREADSTATUS_RUNNING;
+	vm->currentThread = thread;
+
+	// load local state
+	dj_exec_loadLocalState(frame);
+	// as `frame->parent == NULL`, the loadLocalState function will have
+	// placed a reference to the current thread on the parameterStack and
+	// set integerParemeters to NULL
+	// we now patch in our parameters
+	referenceParameters = referenceParams;
+	integerParameters = integerParams;
+
+	return 1;
 }
 
 /**
