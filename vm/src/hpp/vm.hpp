@@ -17,6 +17,14 @@ public:
 		dj_vm_destroy(this->vm);
 	}
 
+	// the first thread is used for calling Java methods from native
+	dj_thread* getFirstThread() {
+		if(this->vm->threads == nullptr) {
+			this->vm->threads = dj_thread_create();
+		}
+		return this->vm->threads;
+	}
+
 	void makeActiveVm() {
 		dj_exec_setVM(this->vm);
 	}

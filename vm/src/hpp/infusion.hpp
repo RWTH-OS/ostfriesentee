@@ -19,7 +19,7 @@ class List {
 
 	/// returns a ref_t that contains the offset of the element
 	/// refered to by the index
-	const ref_t getOffset(const uint8_t index) const {
+	ref_t getOffset(const uint8_t index) const {
 		// see dj_di_parentElement_getChild for why the `+1` is needed
 		return dj_di_getListPointer(this->list + 1, index);
 	}
@@ -34,7 +34,7 @@ public:
 	}
 
 	// index must be smaller than value returned by getSize()
-	const dj_di_pointer getElement(const uint8_t index) const {
+	dj_di_pointer getElement(const uint8_t index) const {
 		return (this->list + this->getOffset(index));
 	}
 
