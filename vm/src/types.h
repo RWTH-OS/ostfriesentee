@@ -133,6 +133,12 @@ struct _dj_thread
 	// runnable object
 	dj_object * runnable;
 
+	// parameters for threads main function
+	// WARNING: they are assumed to be located outside the JVM heap
+	//          and thus will not be updated by the garbage collector
+	ref_t* referenceParameters;
+	int16_t* integerParameters;
+
 	// monitor object in case of blocked
 	dj_object * monitorObject;
 

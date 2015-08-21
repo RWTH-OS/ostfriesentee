@@ -103,6 +103,8 @@ dj_thread *dj_thread_create()
 	ret->priority = 0;
 	ret->runnable = NULL;
 	ret->monitorObject = NULL;
+	ret->referenceParameters = NULL;
+	ret->integerParameters = NULL;
 
 	return ret;
 }

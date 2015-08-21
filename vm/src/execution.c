@@ -148,7 +148,7 @@ static inline void dj_exec_saveLocalState(dj_frame *frame) {
  * is used in context switching and method invocations/returns.
  * @param frame the frame to load
  */
-static inline void dj_exec_loadLocalState(dj_frame *frame) {
+static inline void dj_exec_loadLocalState(dj_thread* thread, dj_frame *frame) {
 	// get program counter, stack pointers, code
 	dj_di_pointer methodImpl = dj_global_id_getMethodImplementation(
 			frame->method);
@@ -175,15 +175,22 @@ static inline void dj_exec_loadLocalState(dj_frame *frame) {
 				- nrIntegerParameters;
 		this = nullref;
 	} else {
-		// Special corner case for the run() method in threads. In this case the method will need to access the implicit
-		// 'this' parameter as run() is a virtual method. Usually parameters are accessed directly from the
-		// caller stack, but since there is no caller frame we copy the 'this' reference from the thread object to a
-		// global variable and wire the callerReferenceStack to point to it. Not very elegant, but it gets the job done.
-		// this = VOIDP_TO_REF(currentThread->runnable);
-		this = VOIDP_TO_REF(dj_exec_getCurrentThread()->runnable);
-		referenceParameters = &this;
-		integerParameters = NULL;
-
+		if(thread->runnable == NULL) {
+			// if runnable is NULL, this means, that there is no Java Thread
+			// assosciated with this thread object
+			// thus we load the parameters saved in the thread struct
+			referenceParameters = thread->referenceParameters;
+			integerParameters = thread->integerParameters;
+		} else {
+			// Special corner case for the run() method in threads. In this case the method will need to access the implicit
+			// 'this' parameter as run() is a virtual method. Usually parameters are accessed directly from the
+			// caller stack, but since there is no caller frame we copy the 'this' reference from the thread object to a
+			// global variable and wire the callerReferenceStack to point to it. Not very elegant, but it gets the job done.
+			// this = VOIDP_TO_REF(currentThread->runnable);
+			this = VOIDP_TO_REF(dj_exec_getCurrentThread()->runnable);
+			referenceParameters = &this;
+			integerParameters = NULL;
+		}
 	}
 }
 
@@ -389,7 +396,7 @@ void dj_exec_activate_thread(dj_thread *thread) {
 	vm->currentThread = thread;
 
 	if (thread->frameStack != NULL)
-		dj_exec_loadLocalState(thread->frameStack);
+		dj_exec_loadLocalState(thread, thread->frameStack);
 	else {
 		DARJEELING_PRINTF("Thread frame is NULL, thread cannot be activated\n");
 		dj_panic(DJ_PANIC_ILLEGAL_INTERNAL_STATE);
@@ -1041,7 +1048,7 @@ static inline void callMethod(dj_global_id methodImplId, int virtualCall)
 		dj_thread_pushFrame(dj_exec_getCurrentThread(), frame);
 
 		// switch in newly created frame
-		dj_exec_loadLocalState(frame);
+		dj_exec_loadLocalState(dj_exec_getCurrentThread(), frame);
 
 #ifdef DARJEELING_DEBUG_MEM_TRACE
 		dj_mem_dumpMemUsage();
@@ -1068,16 +1075,12 @@ int dj_exec_callMethodFromNative(dj_global_id methodImplId, dj_thread* thread,
 	// we assume, that the thread does not have a frame yet
 	thread->frameStack = frame;
 	thread->status = THREADSTATUS_RUNNING;
+	thread->referenceParameters = referenceParams;
+	thread->integerParameters   = integerParams;
 	vm->currentThread = thread;
 
 	// load local state
-	dj_exec_loadLocalState(frame);
-	// as `frame->parent == NULL`, the loadLocalState function will have
-	// placed a reference to the current thread on the parameterStack and
-	// set integerParemeters to NULL
-	// we now patch in our parameters
-	referenceParameters = referenceParams;
-	integerParameters = integerParams;
+	dj_exec_loadLocalState(thread, frame);
 
 	return 1;
 }
