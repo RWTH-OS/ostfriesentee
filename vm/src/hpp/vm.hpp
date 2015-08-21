@@ -39,6 +39,18 @@ public:
 		return dj_vm_createSysLibObject(this->vm, entity_id);
 	}
 
+	dj_di_pointer getRuntimeClassDefinition(const uint8_t runtimeId) {
+		return dj_vm_getRuntimeClassDefinition(this->vm, runtimeId);
+	}
+
+	void addThread(dj_thread* thread) const {
+		dj_vm_addThread(this->vm, thread);
+	}
+
+	void activateThread(dj_thread* thread) const {
+		dj_vm_activateThread(this->vm, thread);
+	}
+
 	/// executes blocking until all threads are dead
 	void run() {
 		while (this->countLiveThreads()>0)

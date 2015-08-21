@@ -118,6 +118,10 @@ public:
 		this->inf = infusion;
 	}
 
+	dj_infusion* getUnderlying() {
+		return this->inf;
+	}
+
 	Infusion next() {
 		Infusion next(this->inf->next);
 		return next;
