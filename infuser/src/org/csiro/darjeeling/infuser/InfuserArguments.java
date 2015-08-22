@@ -77,6 +77,9 @@ public class InfuserArguments
 	@Parameter(names = { "-c", "--c-code-output" }, description = "The c code output file.")
 	private String cCodeOutputFile;
 
+	@Parameter(names = { "-hpp", "--hpp-wrapper-output" }, description = "The c++ wrapper output file.")
+	private String hppWrapperOutputFile;
+
 	// Internally used debug output file.
 	private String debugOutputFile;
 
@@ -240,6 +243,11 @@ public class InfuserArguments
 	public String getNativeOutputFile()
 	{
 		return cCodeOutputFile;
+	}
+
+	public String getHppOutputFile()
+	{
+		return hppWrapperOutputFile;
 	}
 
 	public void setDebugOutputFile(String debugOutputFile)

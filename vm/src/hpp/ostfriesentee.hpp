@@ -1,8 +1,8 @@
 #ifndef OSTFRIESENTEE_HPP
 #define OSTFRIESENTEE_HPP
 
-#include "vm.hpp"
-#include "infusion.hpp"
-#include "object.hpp"
+#include <hpp/vm.hpp>
+#include <hpp/infusion.hpp>
+#include <hpp/object.hpp>
 
 #endif // OSTFRIESENTEE_HPP

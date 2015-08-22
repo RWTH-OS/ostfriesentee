@@ -45,6 +45,7 @@ import org.csiro.darjeeling.infuser.checkphase.ListSizeLimitationsCheckVisitor;
 import org.csiro.darjeeling.infuser.logging.Logging;
 import org.csiro.darjeeling.infuser.outputphase.CFileVisitor;
 import org.csiro.darjeeling.infuser.outputphase.CHeaderVisitor;
+import org.csiro.darjeeling.infuser.outputphase.CPPWrapperVisitor;
 import org.csiro.darjeeling.infuser.outputphase.DIWriterVisitor;
 import org.csiro.darjeeling.infuser.outputphase.DebugVisitor;
 import org.csiro.darjeeling.infuser.outputphase.HeaderVisitor;
@@ -207,6 +208,32 @@ public class Infuser
 		}
 	}
 
+	/**
+	 * Creates a c++ wrapper (.hpp)
+	 * @param infusion the Infusion to output
+	 * @throws InfuserException
+	 */
+	private void createCppWrapperFile(InternalInfusion infusion) throws InfuserException
+	{
+		// create native definitions file
+		String outFile = infuserArguments.getHppOutputFile();
+		if (outFile != null)
+		{
+			Logging.instance.println("Writing c++ wrapper file: " + outFile);
+			try
+			{
+				FileOutputStream fout = new FileOutputStream(outFile);
+				PrintWriter writer = new PrintWriter(fout);
+				infusion.accept(new CPPWrapperVisitor(writer));
+				writer.close();
+				fout.close();
+			} catch (IOException ex)
+			{
+				throw new InfuserException("IO Error writing hpp wrapper output file", ex);
+			}
+		}
+	}
+
 
 	/**
 	 * Creates an debug file (.debug)
@@ -326,6 +353,9 @@ public class Infuser
 
 		// debug
 		createDebugFile(infusion);
+
+		// create hpp wrapper
+		createCppWrapperFile(infusion);
 	}
 
 
