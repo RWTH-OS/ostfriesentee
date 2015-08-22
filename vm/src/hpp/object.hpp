@@ -27,6 +27,45 @@ protected:
 		}
 		return vm->threads;
 	}
+
+	template<size_t N>
+	static inline void setParam(ref_t (&refParams)[N], size_t index, ref_t value) {
+		refParams[index] = value;
+	}
+
+	template<size_t N>
+	static inline void setParam(ref_t (&refParams)[N], size_t index, void* value) {
+		refParams[index] = VOIDP_TO_REF(value);
+	}
+
+	template<size_t N>
+	static inline void setParam(int16_t (&intParams)[N], size_t index, bool value) {
+		intParams[index] = static_cast<int16_t>(value);
+	}
+
+	template<size_t N>
+	static inline void setParam(int16_t (&intParams)[N], size_t index, int8_t value) {
+		intParams[index] = static_cast<int16_t>(value);
+	}
+
+	template<size_t N>
+	static inline void setParam(int16_t (&intParams)[N], size_t index, int16_t value) {
+		intParams[index] = value;
+	}
+
+	template<size_t N>
+	static inline void setParam(int16_t (&intParams)[N], size_t index, int32_t value) {
+		intParams[index+0] = (value >>  0) & 0xffff;
+		intParams[index+1] = (value >> 16) & 0xffff;
+	}
+
+	template<size_t N>
+	static inline void setParam(int16_t (&intParams)[N], size_t index, int64_t value) {
+		intParams[index+0] = (value >>  0) & 0xffff;
+		intParams[index+1] = (value >> 16) & 0xffff;
+		intParams[index+2] = (value >> 32) & 0xffff;
+		intParams[index+3] = (value >> 48) & 0xffff;
+	}
 };
 
 

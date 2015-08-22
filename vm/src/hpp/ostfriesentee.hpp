@@ -3,5 +3,6 @@
 
 #include "vm.hpp"
 #include "infusion.hpp"
+#include "object.hpp"
 
 #endif // OSTFRIESENTEE_HPP
