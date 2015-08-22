@@ -7,6 +7,20 @@ namespace ostfriesentee {
 
 class Object {
 protected:
+	dj_infusion* infusion;
+
+	Object(Infusion& infusion) {
+		this->infusion = infusion.getUnderlying();
+	}
+
+	template<size_t N0, size_t N1>
+	inline void runMethod(uint8_t methodId, ref_t (&refParams)[N0], int16_t (&intParams)[N1]) {
+		dj_global_id method{this->infusion, methodId};
+		dj_exec_callMethodFromNative(method, getThread(), refParams, intParams);
+		// TODO: run untill method finished
+		dj_exec_run(100000);
+	}
+
 	/// creates a dj_object instance
 	static inline dj_object* create(dj_infusion* infusion, uint8_t classId) {
 		dj_global_id id {infusion, classId};
