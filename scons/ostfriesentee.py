@@ -103,6 +103,7 @@ def generate(env):
 	env.Tool('infuser')
 	env.Tool('c_array')
 	env.Tool('target')
+	env.Tool('oft_runtime')
 
 	# helper functions
 	env.AddMethod(run_program, 'Run')
