@@ -77,10 +77,6 @@ public class CPPWrapperVisitor extends DescendingVisitor
 
 		writer.println("");
 		writer.println("#include <hpp/ostfriesentee.hpp>");
-		writer.println("extern \"C\" {");
-		writer.printf("#include <jlib_%s.h>\n", infusionName);
-		writer.println("}");
-		writer.println("");
 		writer.printf("namespace jlib_%s {\n", infusionName);
 
 		visit((ParentElement<Element>)element);
@@ -115,22 +111,23 @@ public class CPPWrapperVisitor extends DescendingVisitor
 		writer.println("\npublic:");
 
 		// generate constructor
-		AbstractMethodImplementation ctor = null;
+		AbstractMethod ctor = null;
 		for(AbstractMethod method : element.getChildren()) {
 			if(method.getMethodDef().getName().equals("<init>")) {
-				ctor = method.getMethodImpl();
+				ctor = method;
 				break;
 			}
 		}
 		if(ctor != null) {
-			String args = createArgList(ctor);
-			writer.printf("\t%s(ostfriesentee::Infusion& infusion, %s) :\n", className, args);
+			writeMethodIds(ctor);
+			writer.printf("\t%s(ostfriesentee::Infusion& infusion, %s) :\n",
+					className, createArgList(ctor.getMethodImpl()));
 			writer.println("\t\t\tostfriesentee::Object(infusion) {");
 
 			writer.printf("\t\tthis->obj = (%s*)create(this->infusion, ClassId);\n", structName);
 			writer.println("\t\tdj_mem_addSafePointer((void**)&this->obj);\n");
 
-			writeCodeToCallMethod(ctor);
+			writeCodeToCallMethod(ctor.getMethodImpl());
 
 			writer.println("\n\t}");
 		} else {
@@ -153,11 +150,12 @@ public class CPPWrapperVisitor extends DescendingVisitor
 			if(name.equals("<init>")) {
 				continue;
 			}
+			writeMethodIds(method);
 			String args = createArgList(method.getMethodImpl());
 			String ret = getCType(method.getMethodDef().getReturnType());
 			writer.printf("\t%s %s(%s) {\n", ret, name, args);
 			writeCodeToCallMethod(method.getMethodImpl());
-			writer.println("\n\t}\n");
+			writer.println("\t}\n");
 		}
 
 		// end class
@@ -180,6 +178,11 @@ public class CPPWrapperVisitor extends DescendingVisitor
 	}
 
 	private void writeCodeToCallMethod(AbstractMethodImplementation method) {
+		String name = method.getMethodDefinition().getName();
+		if(name.equals("<init>")) {
+			name = "constructor";
+		}
+
 		if(method.getIntegerArgumentCount() > 0) {
 			writer.printf("\t\tint16_t intParams[%d];\n", method.getIntegerArgumentCount());
 		}
@@ -203,8 +206,8 @@ public class CPPWrapperVisitor extends DescendingVisitor
 			writer.println("arg" + argCount + ");");
 			argCount++;
 		}
-		writer.printf("\n\t\tthis->runMethod(%s, refParams",
-				getDefineString(method.getMethodDefinition()));
+		writer.printf("\n\t\tthis->runMethod(%sImplementationId, refParams",
+				name);
 		if(method.getIntegerArgumentCount() > 0) {
 			writer.println(", intParams);");
 		} else {
@@ -212,22 +215,34 @@ public class CPPWrapperVisitor extends DescendingVisitor
 		}
 	}
 
+	private void writeMethodIds(AbstractMethod element) {
+		String name = element.getMethodDef().getName();
+		if(name.equals("<init>")) {
+			name = "constructor";
+		}
+
+		writer.print("\t// global definition id from infusion: ");
+		writer.print(element.getMethodDef().getGlobalId().getInfusion());
+		writer.print("\n\tstatic constexpr uint8_t ");
+		writer.print(name);
+		writer.print("DefinitionId = ");
+		writer.print(element.getMethodDef().getGlobalId().getEntityId());
+		writer.print(";\n");
+
+		writer.print("\t// global implementation id from infusion: ");
+		writer.print(element.getMethodImpl().getGlobalId().getInfusion());
+		writer.print("\n\tstatic constexpr uint8_t ");
+		writer.print(name);
+		writer.print("ImplementationId = ");
+		writer.print(element.getMethodImpl().getGlobalId().getEntityId());
+		writer.print(";\n");
+	}
+
 	public void visit(InternalMethodDefinitionList element)
 	{
 		writer.println("// Method definitions");
 		super.visit(element);
 		writer.println("");
-	}
-
-	private String getDefineString(AbstractMethodDefinition element)
-	{
-		Type returnType = Type.getReturnType(element.getSignature());
-		Type argTypes[] = Type.getArgumentTypes(element.getSignature());
-		String descr = returnType + "_" + element.getName();
-		for (Type argType : argTypes) descr += "_" + argType.toString();
-		descr = descr.toString().replaceAll("\\p{Punct}", "_");
-		writer.println("// " + element.getSignature());
-		return infusionName.toUpperCase() + "_MDEF_" + descr;
 	}
 
 	@Override
