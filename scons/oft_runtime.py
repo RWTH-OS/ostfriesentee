@@ -32,6 +32,9 @@ def ostfriesentee_runtime_method(env, oft_libraries):
 	if not isinstance(oft_libraries, list):
 		oft_libraries = [oft_libraries]
 
+	env.SConscript(os.path.join(env['OFT_ROOT'], 'lib', 'util', 'SConscript'), exports = 'env')
+	env.SConscript(os.path.join(env['OFT_ROOT'], 'lib', 'ostfriesentee', 'SConscript'), exports = 'env')
+
 	libs = env.SConscript(os.path.join(env['OFT_ROOT'], 'vm', 'SConscript'), exports = 'env')
 
 	infusions = []
@@ -40,8 +43,9 @@ def ostfriesentee_runtime_method(env, oft_libraries):
 		lib_inc = os.path.join(env['OFT_BUILDPATH'], 'lib', lib)
 		lib_a   = os.path.join(env['OFT_BUILDPATH'], 'lib', lib, 'lib{}.a'.format(lib))
 		infusions.append(lib_di)
-		env.Append(CPPPATH = lib_inc)
-		libs.append(env.File(lib_a))
+		if env.File(lib_a).has_builder():
+			env.Append(CPPPATH = lib_inc)
+			libs.append(env.File(lib_a))
 
 	generated_path = os.path.join(env['OFT_BUILDPATH'], 'generated')
 	archive = env.Command(os.path.join(generated_path, 'di_lib_archive.ar'), infusions, "ar rcf $TARGET $SOURCES")
