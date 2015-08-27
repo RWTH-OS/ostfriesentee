@@ -53,7 +53,7 @@ def ostfriesentee_runtime_method(env, oft_libraries):
 
 	env.Append(CPPPATH = env['OFT_VM_INCLUDE'])
 
-	return [di_c_array] + libs
+	return di_c_array + libs
 
 
 def generate(env):
