@@ -43,8 +43,8 @@ def ostfriesentee_runtime_method(env, oft_libraries):
 		lib_inc = os.path.join(env['OFT_BUILDPATH'], 'lib', lib)
 		lib_a   = os.path.join(env['OFT_BUILDPATH'], 'lib', lib, 'lib{}.a'.format(lib))
 		infusions.append(lib_di)
+		env.Append(CPPPATH = lib_inc)
 		if env.File(lib_a).has_builder():
-			env.Append(CPPPATH = lib_inc)
 			libs.append(env.File(lib_a))
 
 	generated_path = os.path.join(env['OFT_BUILDPATH'], 'generated')
