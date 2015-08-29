@@ -64,7 +64,7 @@ public class CPPWrapperVisitor extends DescendingVisitor
 	public void visit(InternalInfusion element)
 	{
 		AbstractHeader header = element.getHeader();
-		infusionName = header.getInfusionName();
+		infusionName = header.getInfusionName().replace("-", "_");
 
 		writer.printf("#ifndef JLIB_%s_HPP\n", infusionName.toUpperCase());
 		writer.printf("#define JLIB_%s_HPP\n", infusionName.toUpperCase());
@@ -77,6 +77,8 @@ public class CPPWrapperVisitor extends DescendingVisitor
 
 		writer.println("");
 		writer.println("#include <hpp/ostfriesentee.hpp>");
+		writer.println("// include C header for structs");
+		writer.printf("#include <jlib_%s.h>\n", header.getInfusionName());
 		writer.printf("namespace jlib_%s {\n", infusionName);
 
 		visit((ParentElement<Element>)element);
@@ -98,7 +100,13 @@ public class CPPWrapperVisitor extends DescendingVisitor
 		// name of the struct from the c header file
 		String structName = "_" + infusionName.toUpperCase() + "_STRUCT_" +
 				element.getName().replaceAll("\\.", "_").replaceAll("\\$", "_inner_");
-		String className = element.getName();
+		String[] nameParts = element.getName().split("\\.");
+		String className = nameParts[nameParts.length - 1];
+
+		// print namespaces
+		for(int ii = 0; ii < nameParts.length - 1; ii++) {
+			writer.printf("namespace %s {\n", nameParts[ii]);
+		}
 
 		writer.printf("class %s : ostfriesentee::Object {\n", className); 
 		writer.printf("\tstatic constexpr uint8_t ClassId = %d;\n",
@@ -161,6 +169,11 @@ public class CPPWrapperVisitor extends DescendingVisitor
 		// end class
 		writer.printf("}; // class %s\n\n", className);
 
+		// end namespaces
+		for(int ii = 0; ii < nameParts.length - 1; ii++) {
+			writer.printf("} // namespace %s\n", nameParts[ii]);
+		}
+		writer.println("\n");
 	}
 
 	private String createArgList(AbstractMethodImplementation method) {
