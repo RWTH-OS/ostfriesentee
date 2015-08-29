@@ -128,8 +128,12 @@ public class CPPWrapperVisitor extends DescendingVisitor
 		}
 		if(ctor != null) {
 			writeMethodIds(ctor);
-			writer.printf("\t%s(ostfriesentee::Infusion& infusion, %s) :\n",
-					className, createArgList(ctor.getMethodImpl()));
+			String args = createArgList(ctor.getMethodImpl());
+			if(args.length() > 0) {
+				writer.printf("\t%s(ostfriesentee::Infusion& infusion, %s) :\n", className, args);
+			} else {
+				writer.printf("\t%s(ostfriesentee::Infusion& infusion) :\n", className);
+			}
 			writer.println("\t\t\tostfriesentee::Object(infusion) {");
 
 			writer.printf("\t\tthis->obj = (%s*)create(this->infusion, ClassId);\n", structName);
