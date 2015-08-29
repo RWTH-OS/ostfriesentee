@@ -9,12 +9,19 @@ class Vm {
 	dj_vm* vm;
 
 public:
-	Vm() {
-		this->vm = dj_vm_create();
-	}
+	Vm() : vm(nullptr) {}
 
 	~Vm() {
-		dj_vm_destroy(this->vm);
+		if(this->vm != nullptr) {
+			dj_vm_destroy(this->vm);
+		}
+	}
+
+	template<size_t N>
+	void initialize(uint8_t (&mem)[N]) {
+		dj_mem_init(mem, N);
+		ref_t_base_address = (char*)mem - 42;
+		this->vm = dj_vm_create();
 	}
 
 	// the first thread is used for calling Java methods from native
@@ -29,10 +36,13 @@ public:
 		dj_exec_setVM(this->vm);
 	}
 
-
 	void loadInfusionArchive(dj_archive& archive,
 			dj_named_native_handler* handlers, size_t numberOfHandlers) {
 		dj_vm_loadInfusionArchive(this->vm, &archive, handlers, numberOfHandlers);
+	}
+
+	void loadInfusion(const uint8_t* di) {
+		dj_vm_loadInfusion(this->vm, reinterpret_cast<dj_di_pointer>(di));
 	}
 
 	int countLiveThreads() {
