@@ -60,7 +60,7 @@ public class CHeaderVisitor extends DescendingVisitor
 	public void visit(InternalInfusion element)
 	{
 		AbstractHeader header = element.getHeader();
-		infusionName = header.getInfusionName();
+		infusionName = header.getInfusionName().replace("-", "_");
 		
 		writer.printf("#ifndef __%s_definitions_h\n", infusionName);
 		writer.printf("#define __%s_definitions_h\n", infusionName);
@@ -75,7 +75,7 @@ public class CHeaderVisitor extends DescendingVisitor
 		writer.println("#include <stdint.h>");
 		writer.println("#include <pointerwidth.h> // for ref_t");
 		writer.println("");
-		writer.println(String.format("void %s_native_handler(uint8_t id);", header.getInfusionName()));
+		writer.println(String.format("void %s_native_handler(uint8_t id);", infusionName));
 		writer.println("");
 		
 		visit((ParentElement<Element>)element);
