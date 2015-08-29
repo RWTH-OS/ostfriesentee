@@ -286,6 +286,8 @@ public class CPPWrapperVisitor extends DescendingVisitor
 			return "int64_t";
 		case Ref:
 			return "ref_t";
+		case Void:
+			return "void";
 		default:
 			return "";
 		}
