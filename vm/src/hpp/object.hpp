@@ -8,7 +8,14 @@ namespace ostfriesentee {
 class Object {
 protected:
 	dj_infusion* infusion;
+	dj_object* obj;
 
+public:
+	ref_t getRef() {
+		return VOIDP_TO_REF((void*)this->obj);
+	}
+
+protected:
 	Object(Infusion& infusion) {
 		this->infusion = infusion.getUnderlying();
 	}

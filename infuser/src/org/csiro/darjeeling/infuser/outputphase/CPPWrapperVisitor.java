@@ -22,8 +22,10 @@
 package org.csiro.darjeeling.infuser.outputphase;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.bcel.generic.Type;
@@ -112,7 +114,6 @@ public class CPPWrapperVisitor extends DescendingVisitor
 		writer.printf("\tstatic constexpr uint8_t ClassId = %d;\n",
 				element.getGlobalId().getEntityId());
 
-		writer.printf("\t%s* obj;\n", structName);
 		writer.println("\npublic:");
 		writer.printf("\t%s(const %s&) = delete;\n", className, className);
 		writer.printf("\t%s& operator=(const %s&) = delete;\n", className, className);
@@ -127,7 +128,7 @@ public class CPPWrapperVisitor extends DescendingVisitor
 			}
 		}
 		if(ctor != null) {
-			writeMethodIds(ctor);
+			writeMethodIds("constructor", ctor);
 			String args = createArgList(ctor.getMethodImpl());
 			if(args.length() > 0) {
 				writer.printf("\t%s(ostfriesentee::Infusion& infusion, %s) :\n", className, args);
@@ -136,10 +137,10 @@ public class CPPWrapperVisitor extends DescendingVisitor
 			}
 			writer.println("\t\t\tostfriesentee::Object(infusion) {");
 
-			writer.printf("\t\tthis->obj = (%s*)create(this->infusion, ClassId);\n", structName);
+			writer.printf("\t\tthis->obj = create(this->infusion, ClassId);\n");
 			writer.println("\t\tdj_mem_addSafePointer((void**)&this->obj);\n");
 
-			writeCodeToCallMethod(ctor.getMethodImpl());
+			writeCodeToCallMethod("constructor", ctor.getMethodImpl());
 
 			writer.println("\n\t}");
 		} else {
@@ -153,20 +154,31 @@ public class CPPWrapperVisitor extends DescendingVisitor
 
 		// getUnderlying
 		writer.printf("\t%s* getUnderlying() {\n", structName);
-		writer.println("\t\treturn this->obj;");
+		writer.printf("\t\treturn (%s*)(this->obj);\n", structName);
 		writer.println("\t}\n");
 
 		// methods
+		HashMap<String, Integer> methodNames = new HashMap<String, Integer>();
 		for(AbstractMethod method : element.getChildren()) {
 			String name = method.getMethodDef().getName();
 			if(name.equals("<init>")) {
 				continue;
 			}
-			writeMethodIds(method);
+
+			// make sure we do not have duplicate names
+			if(!methodNames.containsKey(name)) {
+				methodNames.put(name, 1);
+			} else {
+				int number = methodNames.get(name);
+				methodNames.replace(name, number + 1);
+				name = name + number;
+			}
+
+			writeMethodIds(name, method);
 			String args = createArgList(method.getMethodImpl());
 			String ret = getCType(method.getMethodDef().getReturnType());
 			writer.printf("\t%s %s(%s) {\n", ret, name, args);
-			writeCodeToCallMethod(method.getMethodImpl());
+			writeCodeToCallMethod(name, method.getMethodImpl());
 			writer.println("\t}\n");
 		}
 
@@ -194,12 +206,7 @@ public class CPPWrapperVisitor extends DescendingVisitor
 		}
 	}
 
-	private void writeCodeToCallMethod(AbstractMethodImplementation method) {
-		String name = method.getMethodDefinition().getName();
-		if(name.equals("<init>")) {
-			name = "constructor";
-		}
-
+	private void writeCodeToCallMethod(String name, AbstractMethodImplementation method) {
 		if(method.getIntegerArgumentCount() > 0) {
 			writer.printf("\t\tint16_t intParams[%d];\n", method.getIntegerArgumentCount());
 		}
@@ -232,12 +239,7 @@ public class CPPWrapperVisitor extends DescendingVisitor
 		}
 	}
 
-	private void writeMethodIds(AbstractMethod element) {
-		String name = element.getMethodDef().getName();
-		if(name.equals("<init>")) {
-			name = "constructor";
-		}
-
+	private void writeMethodIds(String name, AbstractMethod element) {
 		writer.print("\t// global definition id from infusion: ");
 		writer.print(element.getMethodDef().getGlobalId().getInfusion());
 		writer.print("\n\tstatic constexpr uint8_t ");
