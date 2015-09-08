@@ -41,8 +41,10 @@ public:
 		dj_vm_loadInfusionArchive(this->vm, &archive, handlers, numberOfHandlers);
 	}
 
-	void loadInfusion(const uint8_t* di) {
-		dj_vm_loadInfusion(this->vm, reinterpret_cast<dj_di_pointer>(di));
+	Infusion loadInfusion(const uint8_t* di) {
+		auto inf = dj_vm_loadInfusion(this->vm, reinterpret_cast<dj_di_pointer>(di));
+		Infusion infusion(inf);
+		return infusion;
 	}
 
 	int countLiveThreads() {
