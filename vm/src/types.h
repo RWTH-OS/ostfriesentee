@@ -92,7 +92,7 @@ typedef void (*dj_native_handler)(uint8_t);
 
 struct _dj_named_native_handler
 {
-	char * name;
+	const char * name;
 	dj_native_handler handler;
 };
 
