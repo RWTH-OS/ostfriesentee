@@ -91,6 +91,10 @@ static uint8_t nrIntegerParameters;
 
 static ref_t this;
 
+// used to capture return values of Java methods invoked from native
+static int16_t returnToNativeIntStack[sizeof(int64_t)/sizeof(int16_t)];
+static ref_t   returnToNativeRefStack[1];
+
 static int nrOpcodesLeft;
 #ifdef DARJEELING_DEBUG
 static uint32_t totalNrOpcodes;
@@ -1101,6 +1105,9 @@ static inline void returnFromMethod() {
 
 	// check if there are elements on the call stack
 	if (dj_exec_getCurrentThread()->frameStack == NULL) {
+		// provide space for the method's return value
+		intStack = returnToNativeIntStack;
+		refStack = returnToNativeRefStack;
 		// done executing (exited last element on the call stack)
 		dj_exec_getCurrentThread()->status = THREADSTATUS_FINISHED;
 		dj_exec_breakExecution();
