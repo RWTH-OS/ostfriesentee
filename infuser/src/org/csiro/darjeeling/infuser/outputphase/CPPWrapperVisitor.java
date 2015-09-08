@@ -257,6 +257,12 @@ public class CPPWrapperVisitor extends DescendingVisitor
 		} else {
 			writer.println(");");
 		}
+
+		BaseType returnType = method.getMethodDefinition().getReturnType();
+		if(returnType != BaseType.Void) {
+			writer.printf("\t\treturn static_cast<%s>(", getCType(returnType));
+			writer.printf("dj_exec_stackPop%s());\n", getDarjeelingName(returnType));
+		}
 	}
 
 	private void writeMethodIds(String name, AbstractMethod element) {
@@ -310,6 +316,26 @@ public class CPPWrapperVisitor extends DescendingVisitor
 			return "ref_t";
 		case Void:
 			return "void";
+		default:
+			return "";
+		}
+	}
+
+	private String getDarjeelingName(BaseType type) {
+		switch (type)
+		{
+		case Char:
+		case Byte:
+		case Boolean:
+		case Short:
+			return "Short";
+		case Int:
+			return "Int";
+		case Long:
+			return "Long";
+		case Ref:
+			return "Ref";
+		case Void:
 		default:
 			return "";
 		}
