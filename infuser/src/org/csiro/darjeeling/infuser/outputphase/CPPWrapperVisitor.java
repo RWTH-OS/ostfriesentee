@@ -109,10 +109,10 @@ public class CPPWrapperVisitor extends DescendingVisitor
 		}
 
 		writer.printf("class %s : public ostfriesentee::Object {\n", className);
+		writer.println("public:");
 		writer.printf("\tstatic constexpr uint8_t ClassId = %d;\n",
 				element.getGlobalId().getEntityId());
 
-		writer.println("\npublic:");
 		writer.printf("\t%s(const %s&) = delete;\n", className, className);
 		writer.printf("\t%s& operator=(const %s&) = delete;\n", className, className);
 		writer.println("\npublic:");
