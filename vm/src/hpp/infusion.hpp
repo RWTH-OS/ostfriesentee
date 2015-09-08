@@ -135,7 +135,7 @@ public:
 	uint8_t getLocalInfusionId(Infusion& other) {
 		for(size_t ii = 0; ii < this->inf->nr_referenced_infusions; ++ii) {
 			if(this->inf->referencedInfusions[ii] == other.getUnderlying()) {
-				return ii;
+				return ii + 1;	// 1 based index
 			}
 		}
 		return 0;
