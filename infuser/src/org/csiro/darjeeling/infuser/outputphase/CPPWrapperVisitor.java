@@ -172,6 +172,11 @@ public class CPPWrapperVisitor extends DescendingVisitor
 				}
 			}
 
+			// check for C++ keywords that are not keywords in java
+			if(name.equals("delete")) {
+				name = name + "X";
+			}
+
 			// make sure we do not have duplicate names
 			if(!methodNames.containsKey(name)) {
 				methodNames.put(name, 1);
@@ -285,13 +290,7 @@ public class CPPWrapperVisitor extends DescendingVisitor
 	}
 
 	private String getCType(Type type) {
-		String cType = getCType(BaseType.fromBCELType(type));
-
-		if(cType.equals("ref_t")) {
-			return (type.toString().replaceAll("\\.", "::") + "&");
-		} else {
-			return cType;
-		}
+		return getCType(BaseType.fromBCELType(type));
 	}
 	private String getCType(BaseType type) {
 		switch (type)
