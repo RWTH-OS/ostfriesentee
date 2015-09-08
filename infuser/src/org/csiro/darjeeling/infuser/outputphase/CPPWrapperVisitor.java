@@ -129,13 +129,13 @@ public class CPPWrapperVisitor extends DescendingVisitor
 			writeMethodIds("constructor", ctor);
 			String args = createArgList(ctor.getMethodImpl());
 			if(args.length() > 0) {
-				writer.printf("\t%s(ostfriesentee::Infusion& infusion, %s) :\n", className, args);
+				writer.printf("\t%s(ostfriesentee::Infusion& infusion, %s, const uint8_t classId = ClassId) :\n", className, args);
 			} else {
-				writer.printf("\t%s(ostfriesentee::Infusion& infusion) :\n", className);
+				writer.printf("\t%s(ostfriesentee::Infusion& infusion, const uint8_t classId = ClassId) :\n", className);
 			}
 			writer.println("\t\t\tostfriesentee::Object(infusion) {");
 
-			writer.printf("\t\tthis->obj = create(this->infusion, ClassId);\n");
+			writer.printf("\t\tthis->obj = create(this->infusion, classId);\n");
 			writer.println("\t\tdj_mem_addSafePointer((void**)&this->obj);\n");
 
 			writeCodeToCallMethod("constructor", ctor.getMethodImpl());
