@@ -131,6 +131,16 @@ public:
 		return (this->inf != nullptr);
 	}
 
+	// return 0 if not found
+	uint8_t getLocalInfusionId(Infusion& other) {
+		for(size_t ii = 0; ii < this->inf->nr_referenced_infusions; ++ii) {
+			if(this->inf->referencedInfusions[ii] == other.getUnderlying()) {
+				return ii;
+			}
+		}
+		return 0;
+	}
+
 	//------------------------------------------------------------------------
 	// header operations
 
