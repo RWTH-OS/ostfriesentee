@@ -64,8 +64,10 @@ def ostfriesentee_library_method(env, name, source, **kwargs):
 	jar_name = os.path.join(build_path, name + '.jar')
 	target = [File(jar_name)]
 	target.append(File(os.path.join(build_path, name + '.di')))
+	(c_src, c_src_dir) = env.FindFiles(source, ".c")
 	if not is_app:
 		target.append(File(os.path.join(build_path, name + '.dih')))
+	if not is_app and len(c_src) > 0:
 		target.append(File(os.path.join(build_path, 'lib' + name + '.a')))
 	already_specified = reduce(operator.and_, [t.has_builder() for t in target])
 	if already_specified:
@@ -78,8 +80,8 @@ def ostfriesentee_library_method(env, name, source, **kwargs):
 		jar_dep = os.path.join(env['OFT_BUILDPATH'], 'lib', lib, lib + '.jar')
 		env_java.AppendUnique(JAVACLASSPATH=jar_dep)
 		Depends(jar_name, jar_dep)
-	# do not depend on system jars but on lib base, however: only if this is not libbase
 
+	# do not depend on system jars but on lib base, however: only if this is not libbase
 	if name != 'base':
 		env_java['JAVABOOTCLASSPATH'] = [os.path.join(env['OFT_BUILDPATH'], 'lib', 'base', 'base.jar')]
 	else:
@@ -106,7 +108,6 @@ def ostfriesentee_library_method(env, name, source, **kwargs):
 	target += infusion_di + infusion_dih
 
 	# compile native code
-	(c_src, c_src_dir) = env.FindFiles(source, ".c")
 	if len(c_src) > 0:
 		c_env = env.Clone()
 		# place object files in buildpath
