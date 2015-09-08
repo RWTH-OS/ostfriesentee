@@ -81,12 +81,10 @@ public class CPPWrapperVisitor extends DescendingVisitor
 		writer.println("#include <hpp/ostfriesentee.hpp>");
 		writer.println("// include C header for structs");
 		writer.printf("#include <jlib_%s.h>\n", header.getInfusionName());
-		writer.printf("namespace jlib_%s {\n", infusionName);
+		writer.println("");
 
 		visit((ParentElement<Element>)element);
 
-		writer.println("");
-		writer.printf("} // namespace jlib_%s\n", infusionName);
 		writer.println("");
 		writer.printf("#endif // JLIB_%s_HPP\n", infusionName.toUpperCase());
 	}
@@ -110,7 +108,7 @@ public class CPPWrapperVisitor extends DescendingVisitor
 			writer.printf("namespace %s {\n", nameParts[ii]);
 		}
 
-		writer.printf("class %s : ostfriesentee::Object {\n", className); 
+		writer.printf("class %s : public ostfriesentee::Object {\n", className);
 		writer.printf("\tstatic constexpr uint8_t ClassId = %d;\n",
 				element.getGlobalId().getEntityId());
 
@@ -165,6 +163,15 @@ public class CPPWrapperVisitor extends DescendingVisitor
 				continue;
 			}
 
+			// check for array arguments as we do not support these
+			boolean hasArrayArgument = false;
+			for(Type type : Type.getArgumentTypes(method.getMethodDef().getSignature())) {
+				if(type.toString().endsWith("[]")) {
+					hasArrayArgument = true;
+					break;
+				}
+			}
+
 			// make sure we do not have duplicate names
 			if(!methodNames.containsKey(name)) {
 				methodNames.put(name, 1);
@@ -175,11 +182,19 @@ public class CPPWrapperVisitor extends DescendingVisitor
 			}
 
 			writeMethodIds(name, method);
-			String args = createArgList(method.getMethodImpl());
-			String ret = getCType(method.getMethodDef().getReturnType());
-			writer.printf("\t%s %s(%s) {\n", ret, name, args);
-			writeCodeToCallMethod(name, method.getMethodImpl());
-			writer.println("\t}\n");
+
+			if(hasArrayArgument) {
+				writer.printf("\t// The `%s` method is missing", name);
+				writer.println(" because it takes an array as argument.");
+				writer.print("\t// Array parameters are currently not supported");
+				writer.println(" in the c++ wrapper.\n");
+			} else {
+				String args = createArgList(method.getMethodImpl());
+				String ret = getCType(method.getMethodDef().getReturnType());
+				writer.printf("\t%s %s(%s) {\n", ret, name, args);
+				writeCodeToCallMethod(name, method.getMethodImpl());
+				writer.println("\t}\n");
+			}
 		}
 
 		// end class
@@ -270,7 +285,13 @@ public class CPPWrapperVisitor extends DescendingVisitor
 	}
 
 	private String getCType(Type type) {
-		return getCType(BaseType.fromBCELType(type));
+		String cType = getCType(BaseType.fromBCELType(type));
+
+		if(cType.equals("ref_t")) {
+			return (type.toString().replaceAll("\\.", "::") + "&");
+		} else {
+			return cType;
+		}
 	}
 	private String getCType(BaseType type) {
 		switch (type)

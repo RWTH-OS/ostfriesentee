@@ -68,6 +68,11 @@ protected:
 	}
 
 	template<size_t N>
+	static inline void setParam(ref_t (&refParams)[N], size_t index, Object& value) {
+		refParams[index] = value.getRef();
+	}
+
+	template<size_t N>
 	static inline void setParam(int16_t (&intParams)[N], size_t index, bool value) {
 		intParams[index] = static_cast<int16_t>(value);
 	}
