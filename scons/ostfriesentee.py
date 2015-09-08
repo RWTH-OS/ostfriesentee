@@ -115,7 +115,6 @@ def generate(env):
 	# from the `xpcc` microcontroller library project
 	if not 'OFT_BUILDPATH' in env:
 		env['OFT_BUILDPATH'] = os.path.join(Dir('.').abspath, 'build')
-	print(env['OFT_BUILDPATH'])
 
 	# start list of ostfiresentee libraries
 	env['OFT_LIBS'] = []
