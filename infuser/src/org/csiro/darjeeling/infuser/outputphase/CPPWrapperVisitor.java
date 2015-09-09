@@ -22,26 +22,19 @@
 package org.csiro.darjeeling.infuser.outputphase;
 
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 
 import org.apache.bcel.generic.Type;
 import org.csiro.darjeeling.infuser.structure.BaseType;
 import org.csiro.darjeeling.infuser.structure.DescendingVisitor;
 import org.csiro.darjeeling.infuser.structure.Element;
 import org.csiro.darjeeling.infuser.structure.ParentElement;
-import org.csiro.darjeeling.infuser.structure.elements.AbstractField;
 import org.csiro.darjeeling.infuser.structure.elements.AbstractHeader;
 import org.csiro.darjeeling.infuser.structure.elements.AbstractMethod;
-import org.csiro.darjeeling.infuser.structure.elements.AbstractMethodDefinition;
 import org.csiro.darjeeling.infuser.structure.elements.AbstractMethodImplementation;
 import org.csiro.darjeeling.infuser.structure.elements.internal.InternalClassDefinition;
 import org.csiro.darjeeling.infuser.structure.elements.internal.InternalClassList;
 import org.csiro.darjeeling.infuser.structure.elements.internal.InternalInfusion;
-import org.csiro.darjeeling.infuser.structure.elements.internal.InternalMethodDefinition;
 import org.csiro.darjeeling.infuser.structure.elements.internal.InternalMethodDefinitionList;
 
 /**
@@ -250,8 +243,12 @@ public class CPPWrapperVisitor extends DescendingVisitor
 			writer.println("arg" + argCount + ");");
 			argCount++;
 		}
-		writer.printf("\n\t\tthis->runMethod(%sImplementationId, refParams",
-				name);
+		if(name != "constructor" && !method.isStatic()) {
+			writer.print("\n\t\tthis->runVirtualMethod(");
+		} else {
+			writer.print("\n\t\tthis->runMethod(");
+		}
+		writer.printf("%sImplementationId, refParams", name);
 		if(method.getIntegerArgumentCount() > 0) {
 			writer.println(", intParams);");
 		} else {
