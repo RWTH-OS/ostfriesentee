@@ -20,6 +20,38 @@ protected:
 		this->infusion = infusion.getUnderlying();
 	}
 
+	/// returns the implementation id of the first method that fits the
+	/// definition id
+	inline uint8_t findMethod(Infusion& baseInfusion, Infusion& derrivedInfusion,
+			uint8_t classId, dj_local_id baseLocalDefinitionId) {
+		// to quote the Darjeeling creators: "holy zombiejesus this is ugly"
+		// map base local id to global id
+		dj_global_id globalDefinitionId =
+			dj_global_id_resolve(baseInfusion.getUnderlying(), baseLocalDefinitionId);
+		// map global id to derrived local id
+		dj_local_id definitionId =
+			dj_global_id_mapToInfusion(globalDefinitionId, derrivedInfusion.getUnderlying());
+
+		// iterate over methods
+		dj_di_pointer classDef =
+			dj_infusion_getClassDefinition(derrivedInfusion.getUnderlying(), classId);
+		dj_di_pointer methodTable = dj_di_classDefinition_getMethodTable(classDef);
+
+		for(uint8_t ii=0; ii<dj_di_methodTable_getSize(methodTable); ii++) {
+			dj_di_pointer methodTableEntry = dj_di_methodTable_getEntry(methodTable, ii);
+
+			// check if the definition matches the one of the base class
+			if((dj_di_methodTableEntry_getDefinitionEntity(methodTableEntry) == definitionId.entity_id) &&
+				(dj_di_methodTableEntry_getDefinitionInfusion(methodTableEntry)==definitionId.infusion_id) )
+			{
+				// return local (in the derrived infusion) implementation id
+				const uint8_t implId =
+					dj_di_methodTableEntry_getImplementationEntity(methodTableEntry);
+				return implId;
+			}
+		}
+	}
+
 	inline dj_global_id resolveVirtual(dj_global_id method) {
 		return dj_global_id_lookupVirtualMethod(method, this->obj);
 	}

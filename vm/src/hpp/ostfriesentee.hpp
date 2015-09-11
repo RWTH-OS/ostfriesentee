@@ -9,6 +9,7 @@ extern "C" {
 #include <config.h>
 #include <pointerwidth.h>
 #include <panic.h>
+#include <infusion.h>
 }
 #include <hpp/vm.hpp>
 #include <hpp/infusion.hpp>

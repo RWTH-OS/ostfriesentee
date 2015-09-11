@@ -224,7 +224,7 @@ public class Infuser
 			{
 				FileOutputStream fout = new FileOutputStream(outFile);
 				PrintWriter writer = new PrintWriter(fout);
-				infusion.accept(new CPPWrapperVisitor(writer));
+				infusion.accept(new CPPWrapperVisitor(writer, infusion));
 				writer.close();
 				fout.close();
 			} catch (IOException ex)

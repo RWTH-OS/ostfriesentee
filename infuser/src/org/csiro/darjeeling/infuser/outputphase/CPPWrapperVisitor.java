@@ -30,6 +30,7 @@ import org.csiro.darjeeling.infuser.structure.DescendingVisitor;
 import org.csiro.darjeeling.infuser.structure.Element;
 import org.csiro.darjeeling.infuser.structure.ParentElement;
 import org.csiro.darjeeling.infuser.structure.elements.AbstractHeader;
+import org.csiro.darjeeling.infuser.structure.elements.AbstractInfusion;
 import org.csiro.darjeeling.infuser.structure.elements.AbstractMethod;
 import org.csiro.darjeeling.infuser.structure.elements.AbstractMethodImplementation;
 import org.csiro.darjeeling.infuser.structure.elements.internal.InternalClassDefinition;
@@ -49,9 +50,11 @@ public class CPPWrapperVisitor extends DescendingVisitor
 
 	private PrintWriter writer;
 	private String infusionName;
+	private AbstractInfusion rootInfusion;
 
-	public CPPWrapperVisitor(PrintWriter writer)
+	public CPPWrapperVisitor(PrintWriter writer, AbstractInfusion rootInfusion)
 	{
+		this.rootInfusion = rootInfusion;
 		this.writer = writer;
 	}
 
@@ -119,21 +122,46 @@ public class CPPWrapperVisitor extends DescendingVisitor
 			}
 		}
 		if(ctor != null) {
+			// regular constructor
 			writeMethodIds("constructor", ctor);
 			String args = createArgList(ctor.getMethodImpl());
 			if(args.length() > 0) {
-				writer.printf("\t%s(ostfriesentee::Infusion& infusion, %s, const uint8_t classId = ClassId) :\n", className, args);
-			} else {
-				writer.printf("\t%s(ostfriesentee::Infusion& infusion, const uint8_t classId = ClassId) :\n", className);
+				args = ", " + args;
 			}
+			writer.printf("\t%s(ostfriesentee::Infusion& infusion%s) :\n", className, args);
+
 			writer.println("\t\t\tostfriesentee::Object(infusion) {");
 
-			writer.printf("\t\tthis->obj = create(this->infusion, classId);\n");
+			writer.printf("\t\tthis->obj = create(this->infusion, ClassId);\n");
 			writer.println("\t\tdj_mem_addSafePointer((void**)&this->obj);\n");
 
 			writeCodeToCallMethod("constructor", ctor.getMethodImpl());
 
-			writer.println("\n\t}");
+			writer.println("\t}\n");
+
+			// constructor to call for derived objects
+			writer.println("\t// call this constructor if you want to create");
+			writer.printf( "\t// an instance of a class derived from %s\n", className);
+			writer.printf( "\t// baseInfusion: reference to %s infusion\n", infusionName);
+			writer.println("\t// derrivedInfusion: reference to infusion containing the derrived class");
+			writer.println("\t// derrivedClassId: index of the derrived class");
+			writer.printf( "\t%s(ostfriesentee::Infusion& baseInfusion, ", className);
+			writer.printf( "ostfriesentee::Infusion& derrivedInfusion, const uint8_t derrivedClassId%s) :\n", args);
+
+			writer.println("\t\t\tostfriesentee::Object(baseInfusion) {");
+
+			writer.printf("\t\tthis->obj = create(derrivedInfusion.getUnderlying(), derrivedClassId);\n");
+			writer.println("\t\tdj_mem_addSafePointer((void**)&this->obj);\n");
+
+			writer.println("\t\tconst uint8_t implementationId = this->findMethod(baseInfusion,");
+			writer.println("\t\tderrivedInfusion, derrivedClassId,");
+			writer.println("\t\t\t{constructorDefinitionInfusionLocalId, constructorDefinitionId});");
+			writer.println("\t\t// use derrived infusion to call constructor");
+			writer.println("\t\tthis->infusion = derrivedInfusion.getUnderlying();");
+			writeCodeToCallMethod("constructor", ctor.getMethodImpl(), true);
+			writer.println("\t\tthis->infusion = baseInfusion.getUnderlying();");
+
+			writer.println("\t}\n");
 		} else {
 			;	// TODO: when can this happen?
 		}
@@ -220,6 +248,12 @@ public class CPPWrapperVisitor extends DescendingVisitor
 	}
 
 	private void writeCodeToCallMethod(String name, AbstractMethodImplementation method) {
+		// as Java does not support default arguments ...
+		writeCodeToCallMethod(name, method, false);
+	}
+
+	private void writeCodeToCallMethod(String name, AbstractMethodImplementation method,
+			boolean useDynamicImlementationId) {
 		if(method.getIntegerArgumentCount() > 0) {
 			writer.printf("\t\tint16_t intParams[%d];\n", method.getIntegerArgumentCount());
 		}
@@ -248,7 +282,12 @@ public class CPPWrapperVisitor extends DescendingVisitor
 		} else {
 			writer.print("\n\t\tthis->runMethod(");
 		}
-		writer.printf("%sImplementationId, refParams", name);
+
+		String implementationId = name + "ImplementationId";
+		if(useDynamicImlementationId) {
+			implementationId = "implementationId";
+		}
+		writer.printf("%s, refParams", implementationId);
 		if(method.getIntegerArgumentCount() > 0) {
 			writer.println(", intParams);");
 		} else {
@@ -265,10 +304,13 @@ public class CPPWrapperVisitor extends DescendingVisitor
 	private void writeMethodIds(String name, AbstractMethod element) {
 		writer.print("\t// global definition id from infusion: ");
 		writer.print(element.getMethodDef().getGlobalId().getInfusion());
-		writer.print("\n\tstatic constexpr uint8_t ");
-		writer.print(name);
-		writer.print("DefinitionId = ");
+		writer.printf("\n\tstatic constexpr uint8_t %sDefinitionId = ", name);
 		writer.print(element.getMethodDef().getGlobalId().getEntityId());
+		writer.print(";\n");
+		writer.printf("\t// the local id for the %s infusion\n", element.getMethodDef().getGlobalId().getInfusion());
+		int infusionId = element.getMethodDef().getGlobalId().resolve(rootInfusion).getInfusionId();
+		writer.printf("\tstatic constexpr uint8_t %sDefinitionInfusionLocalId = ", name);
+		writer.print(infusionId);
 		writer.print(";\n");
 
 		writer.print("\t// global implementation id from infusion: ");
