@@ -45,7 +45,7 @@ public class CFileVisitor extends DescendingVisitor
 	private void generateNativeHandler(InternalInfusion element)
 	{
 		// generate switch code
-		writer.println(String.format("void %s_native_handler(uint8_t id)", element.getHeader().getInfusionName()));
+		writer.println(String.format("void %s_native_handler(uint8_t id)", element.getHeader().getInfusionName().replace("-", "_")));
 		writer.println("{");
 		writer.println("\tswitch(id)");
 		writer.println("\t{");
