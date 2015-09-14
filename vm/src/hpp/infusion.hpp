@@ -118,6 +118,10 @@ public:
 		this->inf = infusion;
 	}
 
+	Infusion(const Infusion& infusion) {
+		this->inf = infusion.inf;
+	}
+
 	dj_infusion* getUnderlying() {
 		return this->inf;
 	}
