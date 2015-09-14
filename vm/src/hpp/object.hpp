@@ -52,23 +52,22 @@ protected:
 		}
 	}
 
-	inline dj_global_id resolveVirtual(dj_global_id method) {
-		return dj_global_id_lookupVirtualMethod(method, this->obj);
+	inline dj_global_id resolveVirtual(dj_local_id methodDefinitionLocalId) {
+		dj_global_id methodDefGolbalId = dj_global_id_resolve(this->infusion, methodDefinitionLocalId);
+		return dj_global_id_lookupVirtualMethod(methodDefGolbalId, this->obj);
 	}
 
 	template<size_t N0, size_t N1>
-	inline void runVirtualMethod(uint8_t methodId, ref_t (&refParams)[N0], int16_t (&intParams)[N1]) {
-		dj_global_id method{this->infusion, methodId};
-		method = this->resolveVirtual(method);
+	inline void runVirtualMethod(dj_local_id methodDefinitionLocalId, ref_t (&refParams)[N0], int16_t (&intParams)[N1]) {
+		dj_global_id method = this->resolveVirtual(methodDefinitionLocalId);
 		dj_exec_callMethodFromNative(method, getThread(), refParams, intParams);
 		// TODO: run untill method finished
 		dj_exec_run(100000);
 	}
 
 	template<size_t N0>
-	inline void runVirtualMethod(uint8_t methodId, ref_t (&refParams)[N0]) {
-		dj_global_id method{this->infusion, methodId};
-		method = this->resolveVirtual(method);
+	inline void runVirtualMethod(dj_local_id methodDefinitionLocalId, ref_t (&refParams)[N0]) {
+		dj_global_id method = this->resolveVirtual(methodDefinitionLocalId);
 		dj_exec_callMethodFromNative(method, getThread(), refParams, nullptr);
 		// TODO: run untill method finished
 		dj_exec_run(100000);

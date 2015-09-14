@@ -277,21 +277,21 @@ public class CPPWrapperVisitor extends DescendingVisitor
 			writer.println("arg" + argCount + ");");
 			argCount++;
 		}
+
 		if(name != "constructor" && !method.isStatic()) {
-			writer.print("\n\t\tthis->runVirtualMethod(");
+			writer.printf("\n\t\tthis->runVirtualMethod({%sDefinitionInfusionLocalId , %sDefinitionId }, ", name, name);
 		} else {
-			writer.print("\n\t\tthis->runMethod(");
+			String implementationId = name + "ImplementationId";
+			if(useDynamicImlementationId) {
+				implementationId = "implementationId";
+			}
+			writer.printf("\n\t\tthis->runMethod(%s, ", implementationId);
 		}
 
-		String implementationId = name + "ImplementationId";
-		if(useDynamicImlementationId) {
-			implementationId = "implementationId";
-		}
-		writer.printf("%s, refParams", implementationId);
 		if(method.getIntegerArgumentCount() > 0) {
-			writer.println(", intParams);");
+			writer.println("refParams, intParams);");
 		} else {
-			writer.println(");");
+			writer.println("refParams);");
 		}
 
 		BaseType returnType = method.getMethodDefinition().getReturnType();
