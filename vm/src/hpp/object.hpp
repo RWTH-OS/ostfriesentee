@@ -60,7 +60,7 @@ protected:
 	template<size_t N0, size_t N1>
 	inline void runVirtualMethod(dj_local_id methodDefinitionLocalId, ref_t (&refParams)[N0], int16_t (&intParams)[N1]) {
 		dj_global_id method = this->resolveVirtual(methodDefinitionLocalId);
-		dj_exec_callMethodFromNative(method, getThread(), refParams, intParams);
+		dj_exec_callMethodFromNative(method, getThread(), &refParams[N0-1], intParams);
 		// TODO: run untill method finished
 		dj_exec_run(100000);
 	}
@@ -68,7 +68,7 @@ protected:
 	template<size_t N0>
 	inline void runVirtualMethod(dj_local_id methodDefinitionLocalId, ref_t (&refParams)[N0]) {
 		dj_global_id method = this->resolveVirtual(methodDefinitionLocalId);
-		dj_exec_callMethodFromNative(method, getThread(), refParams, nullptr);
+		dj_exec_callMethodFromNative(method, getThread(), &refParams[N0-1], nullptr);
 		// TODO: run untill method finished
 		dj_exec_run(100000);
 	}
@@ -76,7 +76,7 @@ protected:
 	template<size_t N0, size_t N1>
 	inline void runMethod(uint8_t methodId, ref_t (&refParams)[N0], int16_t (&intParams)[N1]) {
 		dj_global_id method{this->infusion, methodId};
-		dj_exec_callMethodFromNative(method, getThread(), refParams, intParams);
+		dj_exec_callMethodFromNative(method, getThread(), &refParams[N0-1], intParams);
 		// TODO: run untill method finished
 		dj_exec_run(100000);
 	}
@@ -84,7 +84,7 @@ protected:
 	template<size_t N0>
 	inline void runMethod(uint8_t methodId, ref_t (&refParams)[N0]) {
 		dj_global_id method{this->infusion, methodId};
-		dj_exec_callMethodFromNative(method, getThread(), refParams, nullptr);
+		dj_exec_callMethodFromNative(method, getThread(), &refParams[N0-1], nullptr);
 		// TODO: run untill method finished
 		dj_exec_run(100000);
 	}
@@ -112,17 +112,20 @@ protected:
 
 	template<size_t N>
 	static inline void setParam(ref_t (&refParams)[N], size_t index, ref_t value) {
-		refParams[index] = value;
+		// ref stack is bottom to top
+		refParams[(N-1) - index] = value;
 	}
 
 	template<size_t N>
 	static inline void setParam(ref_t (&refParams)[N], size_t index, void* value) {
-		refParams[index] = VOIDP_TO_REF(value);
+		// ref stack is bottom to top
+		refParams[(N-1) - index] = VOIDP_TO_REF(value);
 	}
 
 	template<size_t N>
 	static inline void setParam(ref_t (&refParams)[N], size_t index, Object& value) {
-		refParams[index] = value.getRef();
+		// ref stack is bottom to top
+		refParams[(N-1) - index] = value.getRef();
 	}
 
 	template<size_t N>
