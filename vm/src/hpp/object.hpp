@@ -50,6 +50,7 @@ protected:
 				return implId;
 			}
 		}
+		return 0;	// ERROR: not found
 	}
 
 	inline dj_global_id resolveVirtual(dj_local_id methodDefinitionLocalId) {
