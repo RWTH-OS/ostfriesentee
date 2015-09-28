@@ -171,6 +171,9 @@ public class CPPWrapperVisitor extends DescendingVisitor
 		writer.println("\t\tdj_mem_removeSafePointer((void**)&this->obj);");
 		writer.println("\t}\n");
 
+		// Underlying
+		writer.printf("using UnderlyingType = %s;\n\n", structName);
+
 		// getUnderlying
 		writer.printf("\t%s* getUnderlying() {\n", structName);
 		writer.printf("\t\treturn (%s*)(this->obj);\n", structName);
