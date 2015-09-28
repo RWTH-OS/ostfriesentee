@@ -111,6 +111,23 @@ protected:
 		return vm->threads;
 	}
 
+public:
+	template<size_t N0, size_t N1>
+	static inline void runMethod(Infusion& inf, uint8_t methodId, ref_t (&refParams)[N0], int16_t (&intParams)[N1]) {
+		dj_global_id method{inf.getUnderlying(), methodId};
+		dj_exec_callMethodFromNative(method, getThread(), &refParams[N0-1], intParams);
+		// TODO: run untill method finished
+		dj_exec_run(100000);
+	}
+
+	template<size_t N0>
+	static inline void runMethod(Infusion& inf, uint8_t methodId, ref_t (&refParams)[N0]) {
+		dj_global_id method{inf.getUnderlying(), methodId};
+		dj_exec_callMethodFromNative(method, getThread(), &refParams[N0-1], nullptr);
+		// TODO: run untill method finished
+		dj_exec_run(100000);
+	}
+
 	template<size_t N>
 	static inline void setParam(ref_t (&refParams)[N], size_t index, ref_t value) {
 		// ref stack is bottom to top
