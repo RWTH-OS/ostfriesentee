@@ -29,14 +29,18 @@ import java.util.List;
 import org.apache.bcel.generic.Type;
 import org.csiro.darjeeling.infuser.structure.DescendingVisitor;
 import org.csiro.darjeeling.infuser.structure.Element;
+import org.csiro.darjeeling.infuser.structure.GlobalId;
 import org.csiro.darjeeling.infuser.structure.ParentElement;
 import org.csiro.darjeeling.infuser.structure.elements.AbstractField;
 import org.csiro.darjeeling.infuser.structure.elements.AbstractHeader;
+import org.csiro.darjeeling.infuser.structure.elements.AbstractMethodDefinition;
 import org.csiro.darjeeling.infuser.structure.elements.internal.InternalClassDefinition;
 import org.csiro.darjeeling.infuser.structure.elements.internal.InternalClassList;
 import org.csiro.darjeeling.infuser.structure.elements.internal.InternalInfusion;
 import org.csiro.darjeeling.infuser.structure.elements.internal.InternalMethodDefinition;
 import org.csiro.darjeeling.infuser.structure.elements.internal.InternalMethodDefinitionList;
+import org.csiro.darjeeling.infuser.structure.elements.internal.InternalMethodImplementation;
+import org.csiro.darjeeling.infuser.structure.elements.internal.InternalMethodImplementationList;
 
 /**
  * 
@@ -150,23 +154,42 @@ public class CHeaderVisitor extends DescendingVisitor
 
 	public void visit(InternalMethodDefinitionList element)
 	{
-		writer.println("// Method definitions");
+		writer.println("// Method definition (entity) ids");
 		super.visit(element);
 		writer.println("");
 	}
-	
+
 	public void visit(InternalMethodDefinition element)
 	{
+		printIdDefine("MDEF", element, element.getGlobalId());
+	}
+
+	public void visit(InternalMethodImplementationList element)
+	{
+		writer.println("// Method implementation (entity) ids");
+		super.visit(element);
+		writer.println("");
+	}
+
+	public void visit(InternalMethodImplementation element) {
+		// TODO: long and ugly, but in what other way can we guarantee
+		//       unique names??
+		String name = "MIMPL_" + element.getParentClass().getName().replace('.', '_');
+		printIdDefine(name, element.getMethodDefinition(), element.getGlobalId());
+	}
+
+	private void printIdDefine(String idName, AbstractMethodDefinition element, GlobalId id) {
 		Type returnType = Type.getReturnType(element.getSignature());
 		Type argTypes[] = Type.getArgumentTypes(element.getSignature());
 		String descr = returnType + "_" + element.getName();
 		for (Type argType : argTypes) descr += "_" + argType.toString();
 		descr = descr.toString().replaceAll("\\p{Punct}", "_");
 		
-		writer.printf("#define %s_MDEF_%s %d\n",
+		writer.printf("#define %s_%s_%s %d\n",
 				infusionName.toUpperCase(),
+				idName,
 				descr,
-				element.getGlobalId().getEntityId()
+				id.getEntityId()
 				);
 	}
 
