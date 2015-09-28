@@ -39,7 +39,10 @@ def set_arch_common(env):
 		"-Winit-self",
 		"-Wpointer-arith",
 		"-Wunused",
-		"-std=c11"
+	]
+
+	env['CFLAGS'] = [
+		"-std=c11",
 	]
 
 	env['CXXFLAGS'] = [
