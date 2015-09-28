@@ -18,6 +18,7 @@ public:
 protected:
 	Object(Infusion& infusion) {
 		this->infusion = infusion.getUnderlying();
+		dj_mem_addSafePointer((void**)&this->infusion);
 	}
 
 	/// returns the implementation id of the first method that fits the
