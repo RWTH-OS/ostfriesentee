@@ -116,8 +116,10 @@ public class CHeaderVisitor extends DescendingVisitor
 		AbstractClassDefinition cc = element;
 		while(cc != null) {
 			for(AbstractField field : cc.getFieldList().getFields()) {
-				if(!fields.containsKey(field.getOffset())) {
-					fields.put(field.getOffset(), field);
+				int key = field.getOffset() + 1;
+				key = key * ((field.isRef())? -1 : 1);
+				if(!fields.containsKey(key)) {
+					fields.put(key, field);
 				}
 			}
 			cc = cc.getSuperClass();
