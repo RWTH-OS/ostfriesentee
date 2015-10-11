@@ -22,8 +22,10 @@
 package org.csiro.darjeeling.infuser.outputphase;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.bcel.generic.Type;
@@ -31,6 +33,7 @@ import org.csiro.darjeeling.infuser.structure.DescendingVisitor;
 import org.csiro.darjeeling.infuser.structure.Element;
 import org.csiro.darjeeling.infuser.structure.GlobalId;
 import org.csiro.darjeeling.infuser.structure.ParentElement;
+import org.csiro.darjeeling.infuser.structure.elements.AbstractClassDefinition;
 import org.csiro.darjeeling.infuser.structure.elements.AbstractField;
 import org.csiro.darjeeling.infuser.structure.elements.AbstractHeader;
 import org.csiro.darjeeling.infuser.structure.elements.AbstractMethodDefinition;
@@ -107,9 +110,26 @@ public class CHeaderVisitor extends DescendingVisitor
 				className,
 				element.getGlobalId().getEntityId()
 				);
-		
-		// Get field list and sort it by offset
-		List<AbstractField> fields = element.getFieldList().getFields();
+
+		writer.printf("typedef struct _%s_STRUCT_%s {\n", infusionName.toUpperCase(), className);
+		HashMap<Integer, AbstractField> fields = new HashMap<Integer, AbstractField>();
+		AbstractClassDefinition cc = element;
+		while(cc != null) {
+			for(AbstractField field : cc.getFieldList().getFields()) {
+				if(!fields.containsKey(field.getOffset())) {
+					fields.put(field.getOffset(), field);
+				}
+			}
+			cc = cc.getSuperClass();
+		}
+
+		writeCFields(new ArrayList<AbstractField>(fields.values()));
+
+		writer.printf("} __attribute__ ((__packed__)) %s_STRUCT_%s;\n\n", infusionName.toUpperCase(), className);
+	}
+
+	private void writeCFields(List<AbstractField> fields) {
+		// sort field list by offset
 		Collections.sort(fields, new Comparator<AbstractField>() {
 			public int compare(AbstractField arg0, AbstractField arg1)
 			{
@@ -119,8 +139,7 @@ public class CHeaderVisitor extends DescendingVisitor
 				return arg0.getOffset() < arg1.getOffset() ? -1 : 1;
 			}
 		});
-		
-		writer.printf("typedef struct _%s_STRUCT_%s {\n", infusionName.toUpperCase(), className);
+
 		for (AbstractField field : fields)
 		{
 			String typeString = "";
@@ -147,9 +166,8 @@ public class CHeaderVisitor extends DescendingVisitor
 					break;
 			}
 			
-			writer.printf("\t%s %s;\n", typeString, field.getName().replaceAll("\\$", "_"));
+			writer.printf("\t%s %s; \t\t// offset: %d\n", typeString, field.getName().replaceAll("\\$", "_"), field.getOffset());
 		}
-		writer.printf("} __attribute__ ((__packed__)) %s_STRUCT_%s;\n\n", infusionName.toUpperCase(), className);
 	}
 
 	public void visit(InternalMethodDefinitionList element)
