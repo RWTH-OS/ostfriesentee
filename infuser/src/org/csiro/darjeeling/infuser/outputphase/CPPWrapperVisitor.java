@@ -113,17 +113,24 @@ public class CPPWrapperVisitor extends DescendingVisitor
 		writer.printf("\t%s& operator=(const %s&) = delete;\n", className, className);
 		writer.println("\npublic:");
 
-		// generate constructor
-		AbstractMethod ctor = null;
+		// generate constructors
+		int constructorCount = 0;
 		for(AbstractMethod method : element.getChildren()) {
-			if(method.getMethodDef().getName().equals("<init>")) {
-				ctor = method;
-				break;
+			// skip all methods that are not constructors
+			if(!method.getMethodDef().getName().equals("<init>")) {
+				continue;
 			}
-		}
-		if(ctor != null) {
+			AbstractMethod ctor = method;
+
+			// ensure unique names for ids
+			String methodName = "constructor";
+			if(constructorCount > 0) {
+				methodName += constructorCount;
+			}
+			constructorCount++;
+
 			// regular constructor
-			writeMethodIds("constructor", ctor);
+			writeMethodIds(methodName, ctor);
 			String args = createArgList(ctor.getMethodImpl());
 			if(args.length() > 0) {
 				args = ", " + args;
@@ -135,7 +142,7 @@ public class CPPWrapperVisitor extends DescendingVisitor
 			writer.printf("\t\tthis->obj = create(this->infusion, ClassId);\n");
 			writer.println("\t\tdj_mem_addSafePointer((void**)&this->obj);\n");
 
-			writeCodeToCallMethod("constructor", ctor.getMethodImpl());
+			writeCodeToCallMethod(methodName, ctor.getMethodImpl());
 
 			writer.println("\t}\n");
 
@@ -158,12 +165,10 @@ public class CPPWrapperVisitor extends DescendingVisitor
 			writer.println("\t\t\t{constructorDefinitionInfusionLocalId, constructorDefinitionId});");
 			writer.println("\t\t// use derrived infusion to call constructor");
 			writer.println("\t\tthis->infusion = derrivedInfusion.getUnderlying();");
-			writeCodeToCallMethod("constructor", ctor.getMethodImpl(), true);
+			writeCodeToCallMethod(methodName, ctor.getMethodImpl(), true);
 			writer.println("\t\tthis->infusion = baseInfusion.getUnderlying();");
 
 			writer.println("\t}\n");
-		} else {
-			;	// TODO: when can this happen?
 		}
 
 		// destructor
@@ -281,7 +286,8 @@ public class CPPWrapperVisitor extends DescendingVisitor
 			argCount++;
 		}
 
-		if(name != "constructor" && !method.isStatic()) {
+		// FIXME: ugly constructor heuristic
+		if(!name.startsWith("constructor") && !method.isStatic()) {
 			writer.printf("\n\t\tthis->runVirtualMethod({%sDefinitionInfusionLocalId , %sDefinitionId }, ", name, name);
 		} else {
 			String implementationId = name + "ImplementationId";
