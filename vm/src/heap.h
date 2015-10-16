@@ -26,6 +26,7 @@
 
 
 #define SAFE_POINTER_POOL_SIZE 32
+#define SAFE_REFERENCE_POOL_SIZE 4
 
 /**
  * Heap chunk types. Darjeeling keeps a heap where Java objects and non-Java objects are mixed on the same heap.
@@ -92,6 +93,9 @@ dj_object * dj_mem_getPanicExceptionObject();
 
 void dj_mem_addSafePointer(void ** ptr);
 void dj_mem_removeSafePointer(void ** ptr);
+
+void dj_mem_addSafeReference(ref_t * ref);
+void dj_mem_removeSafeReference(ref_t * ref);
 
 int dj_mem_countChunks(runtime_id_t id);
 void dj_mem_gc();

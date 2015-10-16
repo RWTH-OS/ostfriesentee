@@ -88,6 +88,7 @@ static dj_object *panicExceptionObject;
 static uint16_t heap_size;
 
 static void ** safePointerPool[SAFE_POINTER_POOL_SIZE];
+static ref_t * safeReferencePool[SAFE_REFERENCE_POOL_SIZE];
 
 static void *left_pointer, *right_pointer;
 
@@ -111,6 +112,7 @@ void dj_mem_init(void *mem_pointer, uint16_t mem_size)
     heap_size = mem_size;
 
     for (i=0; i<SAFE_POINTER_POOL_SIZE; i++) safePointerPool[i] = NULL;
+	for (i=0; i<SAFE_REFERENCE_POOL_SIZE; i++) safeReferencePool[i] = NULL;
 
     panicExceptionObject = nullref;
 
@@ -244,6 +246,29 @@ void dj_mem_removeSafePointer(void ** ptr)
 
 }
 
+void dj_mem_addSafeReference(ref_t * ref_ptr)
+{
+	uint16_t i;
+
+	for (i=0; i<SAFE_REFERENCE_POOL_SIZE; i++)
+		if (safeReferencePool[i]==NULL)
+		{
+			safeReferencePool[i] = ref_ptr;
+			return;
+		}
+
+	dj_panic(DJ_PANIC_SAFE_POINTER_OVERFLOW);
+}
+
+void dj_mem_removeSafeReference(ref_t * ref_ptr)
+{
+	uint16_t i;
+
+	for (i=0; i<SAFE_REFERENCE_POOL_SIZE; i++)
+		if (safeReferencePool[i]==ref_ptr)
+			safeReferencePool[i] = NULL;
+}
+
 /**
  * Shifts the runtime IDs of objects on the heap to correct ranges when infusions are unloaded.
  * Any id within [start, start+range> is marked invalid (as the infusion that holds the Class
@@ -366,6 +391,11 @@ static inline void dj_mem_mark()
 	for (i=0; i<SAFE_POINTER_POOL_SIZE; i++)
 		if (safePointerPool[i]!=NULL)
 			dj_mem_setPointerGrayIfWhite(*(safePointerPool[i]));
+
+	// mark the safe reference pool
+	for (i=0; i<SAFE_REFERENCE_POOL_SIZE; i++)
+		if (safeReferencePool[i] != NULL)
+			dj_mem_setRefGrayIfWhite(*(safeReferencePool[i]));
 
 	// iterate over the chunks, make every gray chunk black
 	int nrGray;
@@ -506,6 +536,11 @@ void dj_mem_compact()
 	for (i=0; i<SAFE_POINTER_POOL_SIZE; i++)
 		if (safePointerPool[i]!=NULL)
 			*(safePointerPool[i]) = dj_mem_getUpdatedPointer(*(safePointerPool[i]));
+
+	// update references in the safe reference pool
+	for (i=0; i<SAFE_REFERENCE_POOL_SIZE; i++)
+		if (safeReferencePool[i]!=NULL)
+			*(safeReferencePool[i]) = dj_mem_getUpdatedReference(*(safeReferencePool[i]));
 
 	// update the pointer to the panic exception object, if any
 	if (panicExceptionObject!=nullref)
