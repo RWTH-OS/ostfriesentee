@@ -25,7 +25,7 @@
 #include "types.h"
 
 
-#define SAFE_POINTER_POOL_SIZE 10
+#define SAFE_POINTER_POOL_SIZE 32
 
 /**
  * Heap chunk types. Darjeeling keeps a heap where Java objects and non-Java objects are mixed on the same heap.
