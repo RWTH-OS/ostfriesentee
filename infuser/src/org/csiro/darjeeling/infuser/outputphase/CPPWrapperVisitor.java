@@ -174,6 +174,7 @@ public class CPPWrapperVisitor extends DescendingVisitor
 		// destructor
 		writer.printf("\t~%s() {\n", className);
 		writer.println("\t\tdj_mem_removeSafePointer((void**)&this->obj);");
+		writer.println("\t\tdj_mem_removeSafePointer((void**)&this->infusion);");
 		writer.println("\t}\n");
 
 		// Underlying
