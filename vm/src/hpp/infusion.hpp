@@ -116,10 +116,16 @@ class Infusion {
 public:
 	Infusion(dj_infusion* infusion) {
 		this->inf = infusion;
+		dj_mem_addSafePointer((void**)&this->inf);
 	}
 
 	Infusion(const Infusion& infusion) {
 		this->inf = infusion.inf;
+		dj_mem_addSafePointer((void**)&this->inf);
+	}
+
+	~Infusion() {
+		dj_mem_removeSafePointer((void**)&this->inf);
 	}
 
 	dj_infusion* getUnderlying() {
