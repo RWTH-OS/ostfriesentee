@@ -287,6 +287,11 @@ public class CPPWrapperVisitor extends DescendingVisitor
 			argCount++;
 		}
 
+		// add references to safe reference pool
+		for(int ii = 0; ii < refCount; ++ii) {
+			writer.println("\t\tdj_mem_addSafeReference(&refParams[" + ii + "]);");
+		}
+
 		// FIXME: ugly constructor heuristic
 		if(!name.startsWith("constructor") && !method.isStatic()) {
 			writer.printf("\n\t\tthis->runVirtualMethod({%sDefinitionInfusionLocalId , %sDefinitionId }, ", name, name);
@@ -302,6 +307,11 @@ public class CPPWrapperVisitor extends DescendingVisitor
 			writer.println("refParams, intParams);");
 		} else {
 			writer.println("refParams);");
+		}
+
+		// add references to safe reference pool
+		for(int ii = 0; ii < refCount; ++ii) {
+			writer.println("\t\tdj_mem_removeSafeReference(&refParams[" + ii + "]);");
 		}
 
 		BaseType returnType = method.getMethodDefinition().getReturnType();
