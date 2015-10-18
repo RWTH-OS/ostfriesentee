@@ -88,6 +88,15 @@ def set_arch_cortexm(env, arch):
 		"-fdiagnostics-color=auto",
 	])
 
+	env.AppendUnique(CXXFLAGS = [
+		"-fno-exceptions",
+		"-fno-rtti",
+		"-fno-threadsafe-statics",
+		"-fuse-cxa-atexit",
+		"-nostdlib",
+		"-Woverloaded-virtual",
+	])
+
 	env['LINKFLAGS'] = [
 		"-mcpu=" + mcpu,
 		"-mthumb",
