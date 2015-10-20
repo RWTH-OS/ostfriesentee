@@ -65,7 +65,7 @@ def set_arch_cortexm(env, arch):
 
 	# cortex-m0 only supports alligned memory access
 	if mcpu == "cortex-m0":
-		env['CFLAGS'].append("-DALIGN_32")
+		env['CCFLAGS'].append("-DALIGN_32")
 
 	# use arm-none-eabi- toolchain
 	env['CC'] = "arm-none-eabi-gcc"
