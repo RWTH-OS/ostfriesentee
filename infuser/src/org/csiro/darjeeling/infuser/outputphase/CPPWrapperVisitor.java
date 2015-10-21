@@ -212,7 +212,7 @@ public class CPPWrapperVisitor extends DescendingVisitor
 				methodNames.put(name, 1);
 			} else {
 				int number = methodNames.get(name);
-				methodNames.replace(name, number + 1);
+				methodNames.put(name, number + 1);
 				name = name + number;
 			}
 
