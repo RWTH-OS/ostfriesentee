@@ -30,6 +30,9 @@ if os.path.isfile("/usr/share/java/beust-jcommander.jar"):
 # check default Ubuntu path
 elif os.path.isfile("/usr/share/java/jcommander.jar"):
 	env.AppendUnique(JAVACLASSPATH="/usr/share/java/jcommander.jar")
+# check Arch path, requires package intellij-idea-community-edition
+elif os.path.isfile("/usr/share/intellijidea-ce/plugins/testng/lib/jcommander.jar"):
+	env.AppendUnique(JAVACLASSPATH="/usr/share/intellijidea-ce/plugins/testng/lib/jcommander.jar")
 else:
 	env.Error("Could not find jcommander.jar")
 	exit(1)
