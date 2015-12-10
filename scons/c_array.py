@@ -25,7 +25,7 @@ c_array_header = """
 // WARNING: auto generated from {source}!
 //          Do not edit!
 #include <stddef.h>
-size_t {name}_size = {size};
+const size_t {name}_size = {size};
 const unsigned char {name}_data[] = {{
 \t
 """
