@@ -103,6 +103,38 @@ static uint16_t oldPc;
 #ifdef DARJEELING_DEBUG_TRACE
 static int callDepth = 0;
 #endif
+
+// reset global variables to initial state
+void dj_reset_global_execution_state(void)
+{
+	vm = 0;
+	pc = 0;
+	code = 0;
+	intStack = 0;
+	refStack = 0;
+	localReferenceVariables = 0;
+	localIntegerVariables = 0;
+	referenceParameters = 0;
+	integerParameters = 0;
+	nrReferenceParameters = 0;
+	nrIntegerParameters = 0;
+	this = 0;
+	returnToNativeIntStack[0] = 0;
+	nrOpcodesLeft = 0;
+
+	for(int i = 0; i < sizeof(returnToNativeIntStack) / sizeof(returnToNativeIntStack[0]); i++) {
+		returnToNativeIntStack[i] = 0;
+	}
+
+#ifdef DARJEELING_DEBUG
+	t totalNrOpcodes = 0;
+	uint16_t oldPc = 0;
+#endif
+#ifdef DARJEELING_DEBUG_TRACE
+	callDepth = 0;
+#endif
+}
+
 //if it is tossim we need a bunch of getter setters,
 //because tossim considers global variables in all nodes to be shared
 /**

@@ -96,6 +96,28 @@ static void *left_pointer, *right_pointer;
 static int nrTrace = 0;
 #endif
 
+// reset global variables to initial state
+void dj_reset_global_heap_state(void)
+{
+	heap_base = 0;
+	panicExceptionObject = 0;
+	heap_size = 0;
+	left_pointer = 0;
+	right_pointer = 0;
+
+	for(int i = 0; i < SAFE_POINTER_POOL_SIZE; i++) {
+		safePointerPool[i] = 0;
+	}
+
+	for(int i = 0; i < SAFE_REFERENCE_POOL_SIZE; i++) {
+		safeReferencePool[i] = 0;
+	}
+
+#ifdef DARJEELING_DEBUG_MEM_TRACE
+	nrTrace = 0;
+#endif
+}
+
 /**
  * Initialises the memory manager. A call to this function may trigger garbage collection.
  * @param mem_pointer pointer to where Darjeeling can manage its heap
