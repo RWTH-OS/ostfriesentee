@@ -139,7 +139,7 @@ def manifest_string(target, source, env):
 
 def run_jar(env, jar, parameters=""):
 	""" helper method to run a jar file as pseudo target """
-	return env.Command('run_jar_file', jar, 'java -jar {} {}'.format(jar[0].abspath, parameters))
+	return env.Command('run_jar_file', jar, 'DISPLAY={} java -jar {} {}'.format(os.environ['DISPLAY'], jar[0].abspath, parameters))
 
 def generate(env):
 	# oft java requires the find files tool
